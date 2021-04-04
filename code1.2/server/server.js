@@ -46,12 +46,10 @@ import expressJwt from 'express-jwt'
 import session from 'express-session'
 import routes from '../client/routes';
 import { fetchComponentData } from './util/fetchData';
-import posts from './routes/post.routes';
 import dummyData from './dummyData';
 import serverConfig from './config';
 
-//添加 citizen路由
-import cizizenRouter from './routes/citizen.routes';
+// 添加路由
 import userRouter from './routes/user.routes';
 import materialRouter from './routes/material.routes';
 // Set native promises as mongoose promise
@@ -107,8 +105,6 @@ app.use(session({
 }))
 
 //============================== 在这启用后端路由 ================================
-app.use('/api', posts);
-app.use('/api/citizen', cizizenRouter);
 app.use('/api/user',userRouter) //两个路由
 app.use('/api/material',materialRouter)
 
@@ -118,17 +114,6 @@ app.use(function(err,req,res,next){
     res.status(401).send('invalid token')
   }
 })
-// import Tests from './routes/test.routes';
-// const engines = require('consolidate');
-// app.engine('html', engines.mustache);
-// app.set('view engine', 'html');
-// app.use(Express.static(path.join(__dirname, 'public')))
-// ejs 配置
-// const ejs = require('ejs');
-// app.set('view engine', 'ejs');
-// app.use('/api/test', Tests);
-// app.use('/test', Tests);
-
 
 //==============================add IP white list================================
 var AccessControl = require('express-ip-access-control');

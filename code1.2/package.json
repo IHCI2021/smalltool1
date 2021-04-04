@@ -171,7 +171,6 @@
       "client/store.js",
       "client/routes.js",
       "server/util/setup-test-env.js",
-      "server/util/test-helpers.js",
       "server/config.js",
       "server/dummyData.js"
     ],
