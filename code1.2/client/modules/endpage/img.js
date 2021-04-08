@@ -96,8 +96,6 @@ class RecordTest extends React.Component {
     const workbook=new ExcelJS.Workbook();
     // 创建工作表
     const sheet=workbook.addWorksheet('Sheet1');
-    sheet.pageSetup.horizontalCentered=true;
-    sheet.pageSetup.verticalCentered=true;
 
 
     // 设置array类型的length
@@ -112,13 +110,19 @@ class RecordTest extends React.Component {
 
     let address_length=excelData.addresses.length;
     let address_end=address_length+1+phone_end;
+
+    // 设置打印设置
+    let area='A1:C'+(address_end+1);
+    sheet.pageSetup.printArea=area;
+    sheet.pageSetup.paperSize=9;
+    sheet.pageSetup.showGridLines=true;
     // 设置样式
     sheet.getColumn(1).font={
       size:14
     }
     sheet.getColumn(1).width=15;
     sheet.getColumn(2).width=30;
-    sheet.getColumn(3).width=50;
+    sheet.getColumn(3).width=40;
     sheet.getColumn(1).alignment={vertical: 'middle', horizontal: 'center',wrapText: true}
     sheet.getColumn(2).alignment={vertical: 'middle', horizontal: 'center',wrapText: true}
     sheet.getColumn(3).alignment={vertical: 'middle', horizontal: 'center',wrapText: true}
