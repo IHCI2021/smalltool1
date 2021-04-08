@@ -2,7 +2,7 @@ import * as BASE64 from "./constants";
 import React from "react";
 import axios from "axios";
 import { Button, Divider } from "antd";
-import {exportExcel} from 'xlsx-oc';
+import ExcelJS from 'exceljs'
 class RecordTest extends React.Component {
   constructor(props) {
     super(props);
@@ -25,244 +25,168 @@ class RecordTest extends React.Component {
       headers: {
         "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
         Authorization: usertoken,
-        // 'Authorization':""
       },
     }).then((res) => {
       let tposts = res.data.result;
       this.setState({ posts: tposts });
-      // console.log(tposts);
     });
   }
-  exportDefaultExcel=()=>{
-    const list=this.state.posts;
-    const data=[];
-    let i=0;
-    let add_length=list.addresses.length;
-    let con_length=list.conditions.length;
-    let mat_length=list.materials.length;
-    data.push({
-      key:i,
-      item_name:list.item_name,
-      item_code:list.item_code,
-      item_content:list.item_content,
-      basis:list.basis,
-      conditions:list.conditions[0],
-      materials:list.materials[0],
-      legal_limit:list.legal_limit,
-      promise_limit:list.promise_limit,
-      addresses:list.addresses[0]
-    })
-    const header=[
-      {k:'item_name',v:'事项名称'},
-      {k:'item_code',v:'事项编码'},
-      {k:'item_content',v:'事项内容'},
-      {k:'item_basis',v:'政策依据'},
-      {k:'conditions',v:'申办所需资格条件'},
-      {k:'legal_limit',v:'法定办结时限'},
-      {k:'promise_limit',v:'承诺办结时限'},
-      
-      {k:'addresses',v:'办事大厅地址'}]
-    exportExcel(header,data);
+  exportExcel=()=>{
+    // 要导出的数据
+    let excelData=this.state.posts;
+    let data=[];
+    // 创建工作簿
+    const workbook=new ExcelJS.Workbook();
+    // 创建工作表
+    const sheet=workbook.addWorksheet('Sheet1',{properties:{defaultColWidth:16,defaultRowHeight:53}});
+    sheet.pageSetup.horizontalCentered=true;
+    sheet.pageSetup.verticalCentered=true;
+
+    // 设置标题 办事指南
+    sheet.mergeCells('B1:C1');
+    sheet.getCell('B1').value=excelData.item_name+'办事指南';
+
+    // ------事项part--------
+    sheet.mergeCells('A2:A5');
+    sheet.getCell('A3').value='事项';
+  
+    // 表格内容
+    sheet.getCell('B2').value="事项名称";
+    sheet.getCell('C2').value=excelData.item_name;
+
+    sheet.getCell('B3').value="事项编码";
+    sheet.getCell('C3').value=excelData.item_code;
+
+    sheet.getCell('B4').value="事项内容（文件名、文件）";
+    sheet.getCell('C4').value=excelData.item_content;
+
+    sheet.getCell('B5').value="政策依据（文件名、文号）";
+    sheet.getCell('C5').value=excelData.basis;
+
+    // -------申办资格审核------------6-materials_end+1
+    let conditions_lenght=excelData.conditions.length;
+    let conditions_end=5+conditions_lenght;  
+
+    let materials_length=excelData.materials.length;
+    let materials_end=conditions_end+materials_length;
+
+    let phone_length=excelData.phone_numbers_address.length;
+    let phone_end=materials_end+2+phone_length;
+
+    let address_length=excelData.addresses.length;
+    let address_end=address_length+1+phone_end;
+
+
+    sheet.mergeCells('A6','A'+(materials_end+1));
+    sheet.getCell('A7').value="申办资格审核";
+    
+
+    sheet.mergeCells('B6','B'+conditions_end);
+    sheet.getCell('B6').value="申办所需资格条件";
+    for(let i=6,m=0;i<=conditions_end;i++,m++){
+      sheet.getCell('C'+i).value='条件'+(m+1)+': '+excelData.conditions[m];
+    }
+    // 申办材料也是array类型
+
+    sheet.mergeCells('B'+(conditions_end+1),'B'+materials_end);
+    sheet.getCell('B'+(conditions_end+1)).value="申办材料";
+    for(let i=conditions_end+1,m=0;i<=materials_end;i++,m++){
+      sheet.getCell('C'+i).value='材料'+(m+1)+': '+excelData.materials[m];
+    }
+    
+
+    sheet.getCell('B'+(materials_end+1)).value="审核时限";
+    sheet.getCell('C'+(materials_end+1)).value="法定办结时限:"+excelData.legal_limit+"  "+"承诺办结时限:"+excelData.promise_limit;
+    
+    // --------业务咨询part--------materials_end+2,
+    sheet.mergeCells('A'+(materials_end+2),'A'+phone_end);
+    sheet.getCell('A'+phone_end).value="业务咨询"
+    
+    
+    // 申办所需资格条件是array类型
+    sheet.getCell('B'+(materials_end+2)).value="网络咨询平台";
+    const img1=excelData.consult_QR_code_path;
+    if(img1==''){
+      sheet.getCell('C'+(materials_end+2)).value='暂无'
+    }else{
+      const image1=workbook.addImage({
+        base64:img1,
+        extension:'jpeg'
+      })
+      let range='C'+(materials_end+2)+':C'+(materials_end+2)
+      sheet.addImage(image1,range)
+    }
+    sheet.mergeCells('B'+(materials_end+3),'B'+phone_end)
+    
+    sheet.getCell('B'+(materials_end+3)).value="咨询电话";
+    for(let i=materials_end+3,m=0;i<=phone_end;i++,m++){
+      sheet.getCell('C'+i).value='地址'+(m+1)+': '+excelData.phone_numbers_address[m]+"  电话" +(m+1)+': '+excelData.phone_numbers[m];
+    }
+    
+    // ----------业务办理part---------
+    
+    sheet.mergeCells('A'+(phone_end+1),'A'+address_end);
+    sheet.getCell('A'+(phone_end+1)).value="业务办理"
+    sheet.getCell('B'+(phone_end+1)).value="业务办理二维码";
+    const img_service=excelData.service_QR_code_path;
+
+    if(img_service==''){
+      sheet.getCell('C'+(phone_end+1)).value='暂无';
+    }else{
+      const image5=workbook.addImage({
+        base64:img_service,
+        extension:'jpeg'
+      })
+      let range1='C'+(phone_end+1)+':C'+(phone_end+1)
+      sheet.addImage(image5,range1)
+    }
+  
+    sheet.mergeCells('B'+(phone_end+2),'B'+address_end)
+    sheet.getCell('B'+(phone_end+2)).value="办事大厅地址";
+
+    for(let i=phone_end+2,m=0;i<=address_end;i++,m++){
+      sheet.getCell('C'+i).value='地址'+(m+1)+': '+excelData.addresses[m];
+    }
+
+  //  sheet.columns=[
+  //      {header:'事项名称',key:'item_name'},
+  //      {header:'事项编码',key:'item_code'},
+  //      {header:'图片',key:'consult_QR_code_path'}
+  //  ];
+   const img_head= BASE64.BASE64_COL.img1;
+   const img_foot=BASE64.BASE64_COL.img5;
+   const image2=workbook.addImage({
+    base64:img_head,
+    extension:'jpeg'
+  })
+   const image3=workbook.addImage({
+    base64:img_foot,
+    extension:'jpeg'
+  })
+   sheet.addImage(image2,'A1:A1')
+   let range2='A'+(address_end+1)+':C'+(address_end+1)
+   sheet.addImage(image3,range2)
+   
+   //添加行数据
+    // sheet.addRow({item_name:excelData.item_name,item_code:excelData.item_code,consult_QR_code_path:image1});
+    //下载excel
+    workbook.xlsx.writeBuffer().then((buf)=>{
+        let blob = new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8' });
+        const downloadElement = document.createElement('a');
+        let href = window.URL.createObjectURL(blob)
+		    downloadElement.href = href
+		    downloadElement.download = excelData.item_name+"办事指南.xlsx"; // 文件名字
+        document.body.appendChild(downloadElement)
+		    downloadElement.click()
+		    document.body.removeChild(downloadElement) // 下载完成移除元素
+		    window.URL.revokeObjectURL(href) // 释放掉blob对象
+    })    
   }
   render() {
-    let cnarray = this.state.posts.conditions;
-    let maarray = this.state.posts.materials;
-    let phonearray = this.state.posts.phone_numbers;
-    let phone_address_array = this.state.posts.phone_numbers_address; //新加电话地址
-    let addarray = this.state.posts.addresses;
-    const qrcode1 =
-      "data:image/jpeg;base64," + this.state.posts.consult_QR_code;
-    const qrcode2 =
-      "data:image/jpeg;base64," + this.state.posts.service_QR_code;
     return (
-      // <div id={"billDetails"}>
-      //   <Button type="primary" onClick={()=>{this.print.bind(this)}}>打印</Button>
-      // </div>
       <div>
-        <Button type="primary" onClick={this.exportDefaultExcel.bind(this)}>导出excel</Button>
+          <Button type="primary" onClick={this.exportExcel.bind(this)}>导出excel</Button>
       </div>
-
-      // <div id={"billDetails"}>
-      //   <div>
-      //     <div>
-      //       <Button
-      //         type="primary"
-      //         style={{ position: "relative", top: "100px", right: "100px" }}
-      //         onClick={() => {
-      //           this.print.bind(this);
-      //         }}
-      //       >
-      //         打印
-      //       </Button>
-      //       <h1>办事指南</h1>
-      //       <h1
-      //       >
-      //         {this.state.posts.item_name}
-      //       </h1>
-      //     </div>
-      //     <div>
-      //       <div
-      //       >
-      //         <div>
-      //           事项名称
-      //         </div>
-      //         <div>
-      //           {this.state.posts.item_name}
-      //         </div>
-      //         <div>
-      //           事项编码
-      //         </div>
-      //         <div
-      //         >
-      //           {this.state.posts.item_code}
-      //         </div>
-      //         <div
-      //         >
-      //           事项内容（待遇标准）
-      //         </div>
-      //         <div
-      //         >
-      //           {this.state.posts.item_content}
-      //         </div>
-      //         <div
-      //         >
-      //           政策依据（文件名，文号）
-      //         </div>
-      //         <div
-      //         >
-      //           {this.state.posts.basis}
-      //         </div>
-      //       </div>
-      //     </div>
-      //     <div
-      //     >
-      //       <div
-      //       >
-      //         <div
-      //         >
-      //           申办所需资格条件
-      //         </div>
-      //         <div
-      //         >
-      //           {cnarray &&
-      //             cnarray.map((item, index) => (
-      //               <li
-      //                 style={{
-      //                   listStyle: "none",
-      //                 }}
-      //               >
-      //                 {index + 1 + "." + item}
-      //               </li>
-      //             ))}
-      //         </div>
-      //         <div
-      //         >
-      //           申办材料
-      //         </div>
-      //         <div
-      //         >
-      //           {maarray &&
-      //             maarray.map((item, index) => (
-      //               <li
-      //                 style={{
-      //                   listStyle: "none",
-      //                 }}
-      //               >
-      //                 {index + 1 + "." + item}
-      //               </li>
-      //             ))}
-      //         </div>
-      //         <div
-      //         >
-      //           审核时限
-      //         </div>
-
-      //         <div
-
-      //         >
-      //           <div
-      //           >
-      //             {" "}
-      //             法定办结时限：{this.state.posts.legal_limit}
-      //             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;承诺办结时限：
-      //             {this.state.posts.legal_limit}
-      //           </div>
-      //         </div>
-      //       </div>
-      //     </div>
-      //     <div
-
-      //     >
-      //       <div>
-      //         <div>
-      //           网络咨询平台
-      //         </div>
-      //         <div
-
-      //         >
-      //           {" "}
-      //           咨询电话
-      //         </div>
-
-      //         <div
-
-      //         >
-      //           <img
-      //             src={
-      //               "data:image/jpeg;base64," + this.state.posts.consult_QR_code
-      //             }
-      //           />
-      //         </div>
-
-      //         <div>
-      //           {phone_address_array &&
-      //             phone_address_array.map((item, index) => (
-      //               <div
-      //                 style={{
-      //                   fontSize: "20px",
-      //                   textIndent: "2rem",
-      //                   display: "inline-block",
-      //                 }}
-      //               >
-      //                 {index + 1 + "." + item + phonearray[index]}
-      //               </div>
-      //             ))}
-      //         </div>
-      //       </div>
-      //     </div>
-
-      //     <div>
-      //       <div>
-      //         <div>
-      //           业务办理二维码
-      //         </div>
-      //         <div>
-      //           办事大厅地址
-      //         </div>
-      //         <div>
-      //           <img
-      //             src={
-      //               "data:image/jpeg;base64," + this.state.posts.service_QR_code
-      //             }
-      //           />
-      //         </div>
-      //         <div>
-      //           {addarray &&
-      //             addarray.map((item, index) => (
-      //               <li
-      //                 style={{
-      //                   fontSize: "20px",
-      //                   listStyle: "none",
-      //                 }}
-      //               >
-      //                 {index + 1 + "." + item}
-      //               </li>
-      //             ))}
-      //         </div>
-      //       </div>
-      //     </div>
-      //   </div>
-      // </div>
     );
   }
 }
