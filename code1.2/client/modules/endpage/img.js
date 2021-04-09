@@ -99,6 +99,7 @@ class RecordTest extends React.Component {
 
 
     // 设置array类型的length
+    console.log(excelData.conditions);
     let conditions_lenght=excelData.conditions.length;
     let conditions_end=5+conditions_lenght;  
 
@@ -116,6 +117,8 @@ class RecordTest extends React.Component {
     sheet.pageSetup.printArea=area;
     sheet.pageSetup.paperSize=9;
     sheet.pageSetup.showGridLines=true;
+    sheet.pageSetup.verticalCentered=true;
+    sheet.pageSetup.horizontalCentered=true;
     // 设置样式
     sheet.getColumn(1).font={
       size:14
@@ -134,10 +137,24 @@ class RecordTest extends React.Component {
     }
 
     const row1=sheet.getRow(1);
-    row1.height=78;
+    row1.height=81;
     row1.font={
       size:18
     }
+    // sheet.pageSetup.fitToPage=true;
+    // sheet.pageSetup.fitToHeight=5;
+    // sheet.pageSetup.fitToWidth=7;
+
+
+    sheet.views=[
+      {state:'split',}
+    ]
+
+    //很奇怪，为什么没有效果呢？ 
+    sheet.pageSetup.printTitlesRow = '1:2';
+    let print_end=(address_end+1)+':'+(address_end+1)
+    sheet.pageSetup.printTitlesRow = print_end;
+
     // 设置标题 办事指南
     sheet.mergeCells('B1:C1');
     sheet.getCell('B1').value=excelData.item_name+'办事指南';
@@ -192,16 +209,16 @@ class RecordTest extends React.Component {
     if(img1==''){
       sheet.getCell('C'+(materials_end+2)).value='暂无'
     }else{
-
       const image1=workbook.addImage({
         base64:img1,
         extension:'jpeg'
       })
       sheet.getRow(materials_end+2).height='100px';
       sheet.addImage(image1,{
-        tl:{col:2,row:materials_end+1},
-        ext:{width:100,height:100}
-      })     
+        tl:{col:2.9,row:materials_end+1.5},
+        ext:{width:100,height:100},
+        editAs: 'oneCell'
+      });  
     }
     sheet.mergeCells('B'+(materials_end+3),'B'+phone_end)
     
@@ -225,10 +242,10 @@ class RecordTest extends React.Component {
         extension:'jpeg'
       })
       sheet.getRow(phone_end+1).height='100px';
-      // sheet.getRow(phone_end).height=50;
       sheet.addImage(image5,{
-        tl:{col:2,row:phone_end},
-        ext:{width:100,height:100}
+        tl:{col:2.9,row:phone_end+0.5},
+        ext:{width:100,height:100},
+        editAs: 'oneCell'
       })     
     }
   
@@ -252,14 +269,16 @@ class RecordTest extends React.Component {
   })
   // 设置样式
    sheet.addImage(image2,{
-     tl:{col:0,row:0},
-     ext:{width:100,height:100}
+     tl:{col:0.01,row:0.03},
+     ext:{width:100,height:100},
+     editAs: 'oneCell'
    });
 
    sheet.getRow(address_end+1).height=100;
-   let range2='A'+(address_end+1)+':C'+(address_end+1)
+   let range2='A'+(address_end+1.1)+':C'+(address_end+1.1)
    sheet.addImage(image3,range2,{
-     ext:{width:100,height:100}
+     ext:{width:100,height:100},
+     editAs: 'oneCell'
    })
     //导出  
     workbook.xlsx.writeBuffer().then((buf)=>{
