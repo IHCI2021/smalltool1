@@ -88,58 +88,31 @@ class RecordTest extends React.Component {
     });
   }
 
-  exportExcel=()=>{
-
-    function countNumber(length){
-      let a=Math.ceil(length/22);
-      let b=a*20;
-      if(b>409){
-        return 409;
-      }else{
-        return b;
-      }
-    }
-    
+  exportExcel=()=>{    
     // 要导出的数据
     let excelData=this.state.posts;
     // 创建工作簿
     const workbook=new ExcelJS.Workbook();
     // 创建工作表
     const sheet=workbook.addWorksheet('Sheet1');
+    // 页面设置
     sheet.pageSetup={fitToPage: true, fitToHeight: 5, fitToWidth: 7}
-
-
-
-    workbook.calcProperties.fullCalcOnLoad = true;
-    
-    // 设置array类型的length
-
-    // // 设置打印设置
-    // let area='A1:C'+(address_end+1);
-    // // let area='A1:C'+(address_end+1);
-    // sheet.pageSetup.printArea=area;
-    // A4纸尺寸
     sheet.pageSetup.paperSize=9;
     sheet.pageSetup.showGridLines=true;
-    // 单位为英寸
-    // sheet.pageSetup.margins={
-    //   left:0.5,right:0.5,
-    //   top:0.5,bottom:0.5,
-    //   footer:0.3
-    // }
     sheet.pageSetup.margins={
       left:0.1,right:0.1,
       top:0.1,bottom:0.3,
       footer:0.1
     }
     sheet.headerFooter.oddFooter="第 &P 页,共 &N 页"
-    // 设置样式
+
+    // 给每一列设置样式
     sheet.getColumn(1).font={
       size:14
     }
-    sheet.getColumn(1).width=15;
-    sheet.getColumn(2).width=30;
-    sheet.getColumn(3).width=59;
+    sheet.getColumn(1).width=17;
+    sheet.getColumn(2).width=28;
+    sheet.getColumn(3).width=60;
     sheet.getColumn(1).alignment={vertical: 'middle', horizontal: 'center',wrapText: true}
     sheet.getColumn(2).alignment={vertical: 'middle', horizontal: 'center',wrapText: true}
     sheet.getColumn(3).alignment={vertical: 'middle', horizontal: 'center',wrapText: true}
@@ -155,48 +128,68 @@ class RecordTest extends React.Component {
       size:18
     }
 
+    function countNumber(length){
+      let a=Math.ceil(length/22);
+      let b=a*20;
+      if(b>409){
+        return 409;
+      }else{
+        return b;
+      }
+    }
+
     const img_background=BASE64.BASE64_COL.p7;
     const image7=workbook.addImage({
           base64:img_background,
           extension:'png'
         })
     // 什么时候分页，并且添加一个空白的表格
-    var totalLength=0;
+    const pageLength=775;
+    let totalLength=0;
     let totalLengthLast=0;
     let Page=0;
     let AddTime=0;
-    function newPage(totalLength,totalLengthLast,i){
-      if(totalLength<755) return;
+    // 上次B列merge到这里
+    let merge_end=0;
+    let merge_end_A=0;
+    function newPage(){
+      if(totalLength<pageLength) {
+        merge_end=i;
+        return;
+      }
       else{
         //totalLength是多出来的一部分
-        totalLength=totalLength-755;
+        totalLength=totalLength-pageLength;
         //b是该页余下的部分
-        let b=755-totalLengthLast;
+        let b=pageLength-totalLengthLast;
         //22/20
         let length=Math.floor(b*1.1);
         let first=sheet.getCell('C'+i).value.substring(0,length);
         let end=sheet.getCell('C'+i).value.substring(length);
+        // 处理C列
         sheet.getCell('C'+i).value=first;
         sheet.getCell('C'+(i+1)).value=end;
+        // 处理B列
+        sheet.mergeCells('B'+merge_end,'B'+i);
+        merge_end=i;
+        // 处理A列
+        sheet.mergeCells('A'+(merge_end_A+1),'A'+i);
+        merge_end_A=i;
         sheet.getRow(i).height=b;
         sheet.getRow(i+1).height=countNumber(sheet.getCell('C'+i).value.length);
-        console.log(sheet.getRow(7).height);
-        console.log(sheet.getRow(8).height);
-
         // 设置样式
         let area='A'+Page+':C'+i;
         sheet.addImage(image7,area);
         Page=i+1;
         AddTime++;
         totalLengthLast=0;
+        i++;
         return;
       }
     }
 
     // 页头
     sheet.pageSetup.printTitlesRow = '1:1';
-    // let print_end=(address_end+1)+':'+(address_end+1)
-    // sheet.pageSetup.printTitlesRow = print_end;
 
     // 设置标题 办事指南
     sheet.mergeCells('B1:C1');
@@ -221,54 +214,43 @@ class RecordTest extends React.Component {
 
     sheet.getCell('B4').value="事项内容（文件名、文件）";
     sheet.getCell('C4').value=excelData.item_content;
-    sheet.getRow(4).height=countNumber(excelData.item_content.length);
+    sheet.getRow(4).height=countNumber(excelData.item_content.length)>40?countNumber(excelData.item_content.length):40;
     totalLengthLast=totalLength;
     totalLength+=sheet.getRow(4).height;
+    merge_end=4;
 
     sheet.getCell('B5').value="政策依据（文件名、文号）";
     sheet.getCell('C5').value=excelData.basis;
     sheet.getRow(5).height=countNumber(excelData.basis.length);
     totalLengthLast=totalLength;
     totalLength+=sheet.getRow(5).height;
-    newPage(totalLength,totalLengthLast,5);
+
+    
+    let i=5;
+    newPage();
+    merge_end_A=i;
 
     // -------申办资格审核------------6-materials_end+1
-    // sheet.mergeCells('A6','A'+(materials_end+(AddTime+1)));
-    // sheet.getCell('A7').value="申办资格审核";
-    
+    sheet.getCell('A'+(i+1)).value="申办资格审核";
+    sheet.getCell('B'+(i+1)).value="申办所需资格条件"
 
     let conditions_lenght=excelData.conditions.length;
-    let conditions_end=5+conditions_lenght;  
-    
-    sheet.getCell('B6').value="申办所需资格条件";
-      sheet.getCell('C6').value=excelData.conditions[0];
-      sheet.getRow(6).height=countNumber(excelData.conditions[0].length);
+    let conditions_end=5+conditions_lenght;
+    // i是下一次要使用的  
+    i=6+AddTime
+    for(let m=0;m<conditions_lenght;i++,m++){
+      sheet.getCell('C'+i).value='条件'+(m+1)+': '+excelData.conditions[m];
+      sheet.getRow(i).height=countNumber(excelData.conditions[m].length);
       totalLengthLast=totalLength;
-      totalLength+=sheet.getRow(6).height;
-      console.log('0--'+totalLength,AddTime);
-      newPage(totalLength,totalLengthLast,6);
-      console.log('1--'+totalLength,AddTime);
+      totalLength+=sheet.getRow(i).height;
+      newPage();
+    }
 
-    sheet.getCell('B7').value="申办所需资格条件";
-      sheet.getCell('C7').value=excelData.conditions[1];
-      sheet.getRow(7).height=countNumber(excelData.conditions[1].length);
-      totalLengthLast=totalLength;
-      totalLength+=sheet.getRow(7).height;
-      console.log('0--'+totalLength,AddTime);
-      newPage(totalLength,totalLengthLast,7);
-      console.log('1--'+totalLength,AddTime);
-    
-    // for(let i=6+AddTime,m=0;i<=conditions_end+AddTime;i++,m++){
-    //   sheet.getCell('C'+i).value='条件'+(m+1)+': '+excelData.conditions[m];
-    //   sheet.getRow(i).height=countNumber(excelData.conditions[m].length);
-    //   totalLength+=sheet.getRow(i).height;
-    //   console.log('0--'+i,m,totalLength,AddTime);
-    //   newPage(totalLength,i);
-    //   console.log('1--'+i,m,totalLength,AddTime);
-    // }
-    // sheet.mergeCells('B6','B'+(conditions_end+AddTime));
+    console.log(merge_end,i);
+    sheet.mergeCells('B'+(merge_end+1),'B'+(i-1));
+    sheet.getCell('B'+i).value="申办所需资格条件"
 
-    let area='A1:C7'
+    let area='A1:C9'
      // 设置打印设置
     //  let area='A1:C'+(conditions_end+AddTime);
     //  let area='A1:C'+(address_end+1);
@@ -281,6 +263,7 @@ class RecordTest extends React.Component {
 
     // let address_length=excelData.addresses.length;
     // let address_end=address_length+1+phone_end;
+
     // 申办材料也是array类型
 
   //   sheet.mergeCells('B'+(conditions_end+1),'B'+materials_end);
