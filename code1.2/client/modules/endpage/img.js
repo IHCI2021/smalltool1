@@ -89,43 +89,57 @@ class RecordTest extends React.Component {
   }
 
   exportExcel=()=>{
+
+    function countNumber(length){
+      let a=Math.ceil(length/22);
+      let b=a*20;
+      if(b>409){
+        return 409;
+      }else{
+        return b;
+      }
+    }
+    
     // 要导出的数据
     let excelData=this.state.posts;
-    let data=[];
     // 创建工作簿
     const workbook=new ExcelJS.Workbook();
     // 创建工作表
     const sheet=workbook.addWorksheet('Sheet1');
+    sheet.pageSetup={fitToPage: true, fitToHeight: 5, fitToWidth: 7}
 
 
+
+    workbook.calcProperties.fullCalcOnLoad = true;
+    
     // 设置array类型的length
-    console.log(excelData.conditions);
-    let conditions_lenght=excelData.conditions.length;
-    let conditions_end=5+conditions_lenght;  
 
-    let materials_length=excelData.materials.length;
-    let materials_end=conditions_end+materials_length;
-
-    let phone_length=excelData.phone_numbers_address.length;
-    let phone_end=materials_end+2+phone_length;
-
-    let address_length=excelData.addresses.length;
-    let address_end=address_length+1+phone_end;
-
-    // 设置打印设置
-    let area='A1:C'+(address_end+1);
-    sheet.pageSetup.printArea=area;
+    // // 设置打印设置
+    // let area='A1:C'+(address_end+1);
+    // // let area='A1:C'+(address_end+1);
+    // sheet.pageSetup.printArea=area;
+    // A4纸尺寸
     sheet.pageSetup.paperSize=9;
     sheet.pageSetup.showGridLines=true;
-    sheet.pageSetup.verticalCentered=true;
-    sheet.pageSetup.horizontalCentered=true;
+    // 单位为英寸
+    // sheet.pageSetup.margins={
+    //   left:0.5,right:0.5,
+    //   top:0.5,bottom:0.5,
+    //   footer:0.3
+    // }
+    sheet.pageSetup.margins={
+      left:0.1,right:0.1,
+      top:0.1,bottom:0.3,
+      footer:0.1
+    }
+    sheet.headerFooter.oddFooter="第 &P 页,共 &N 页"
     // 设置样式
     sheet.getColumn(1).font={
       size:14
     }
     sheet.getColumn(1).width=15;
     sheet.getColumn(2).width=30;
-    sheet.getColumn(3).width=40;
+    sheet.getColumn(3).width=59;
     sheet.getColumn(1).alignment={vertical: 'middle', horizontal: 'center',wrapText: true}
     sheet.getColumn(2).alignment={vertical: 'middle', horizontal: 'center',wrapText: true}
     sheet.getColumn(3).alignment={vertical: 'middle', horizontal: 'center',wrapText: true}
@@ -135,25 +149,54 @@ class RecordTest extends React.Component {
     sheet.getColumn(3).font={
       size:14
     }
-
     const row1=sheet.getRow(1);
-    row1.height=81;
+    row1.height=85;
     row1.font={
       size:18
     }
-    // sheet.pageSetup.fitToPage=true;
-    // sheet.pageSetup.fitToHeight=5;
-    // sheet.pageSetup.fitToWidth=7;
 
+    const img_background=BASE64.BASE64_COL.p7;
+    const image7=workbook.addImage({
+          base64:img_background,
+          extension:'png'
+        })
+    // 什么时候分页，并且添加一个空白的表格
+    var totalLength=0;
+    let totalLengthLast=0;
+    let Page=0;
+    let AddTime=0;
+    function newPage(totalLength,totalLengthLast,i){
+      if(totalLength<755) return;
+      else{
+        //totalLength是多出来的一部分
+        totalLength=totalLength-755;
+        //b是该页余下的部分
+        let b=755-totalLengthLast;
+        //22/20
+        let length=Math.floor(b*1.1);
+        let first=sheet.getCell('C'+i).value.substring(0,length);
+        let end=sheet.getCell('C'+i).value.substring(length);
+        sheet.getCell('C'+i).value=first;
+        sheet.getCell('C'+(i+1)).value=end;
+        sheet.getRow(i).height=b;
+        sheet.getRow(i+1).height=countNumber(sheet.getCell('C'+i).value.length);
+        console.log(sheet.getRow(7).height);
+        console.log(sheet.getRow(8).height);
 
-    sheet.views=[
-      {state:'split',}
-    ]
+        // 设置样式
+        let area='A'+Page+':C'+i;
+        sheet.addImage(image7,area);
+        Page=i+1;
+        AddTime++;
+        totalLengthLast=0;
+        return;
+      }
+    }
 
-    //很奇怪，为什么没有效果呢？ 
-    sheet.pageSetup.printTitlesRow = '1:2';
-    let print_end=(address_end+1)+':'+(address_end+1)
-    sheet.pageSetup.printTitlesRow = print_end;
+    // 页头
+    sheet.pageSetup.printTitlesRow = '1:1';
+    // let print_end=(address_end+1)+':'+(address_end+1)
+    // sheet.pageSetup.printTitlesRow = print_end;
 
     // 设置标题 办事指南
     sheet.mergeCells('B1:C1');
@@ -166,120 +209,186 @@ class RecordTest extends React.Component {
     // 表格内容
     sheet.getCell('B2').value="事项名称";
     sheet.getCell('C2').value=excelData.item_name;
+    sheet.getRow(2).height=countNumber(excelData.item_name.length);
+    totalLength=sheet.getRow(2).height;
 
     sheet.getCell('B3').value="事项编码";
     sheet.getCell('C3').value=excelData.item_code;
+    sheet.getRow(3).height=countNumber(excelData.item_code.length);
+    totalLengthLast=totalLength;
+    totalLength+=sheet.getRow(3).height;
+    
 
     sheet.getCell('B4').value="事项内容（文件名、文件）";
     sheet.getCell('C4').value=excelData.item_content;
+    sheet.getRow(4).height=countNumber(excelData.item_content.length);
+    totalLengthLast=totalLength;
+    totalLength+=sheet.getRow(4).height;
 
     sheet.getCell('B5').value="政策依据（文件名、文号）";
     sheet.getCell('C5').value=excelData.basis;
+    sheet.getRow(5).height=countNumber(excelData.basis.length);
+    totalLengthLast=totalLength;
+    totalLength+=sheet.getRow(5).height;
+    newPage(totalLength,totalLengthLast,5);
 
     // -------申办资格审核------------6-materials_end+1
-    sheet.mergeCells('A6','A'+(materials_end+1));
-    sheet.getCell('A7').value="申办资格审核";
+    // sheet.mergeCells('A6','A'+(materials_end+(AddTime+1)));
+    // sheet.getCell('A7').value="申办资格审核";
     
 
-    sheet.mergeCells('B6','B'+conditions_end);
+    let conditions_lenght=excelData.conditions.length;
+    let conditions_end=5+conditions_lenght;  
+    
     sheet.getCell('B6').value="申办所需资格条件";
-    for(let i=6,m=0;i<=conditions_end;i++,m++){
-      sheet.getCell('C'+i).value='条件'+(m+1)+': '+excelData.conditions[m];
-    }
+      sheet.getCell('C6').value=excelData.conditions[0];
+      sheet.getRow(6).height=countNumber(excelData.conditions[0].length);
+      totalLengthLast=totalLength;
+      totalLength+=sheet.getRow(6).height;
+      console.log('0--'+totalLength,AddTime);
+      newPage(totalLength,totalLengthLast,6);
+      console.log('1--'+totalLength,AddTime);
+
+    sheet.getCell('B7').value="申办所需资格条件";
+      sheet.getCell('C7').value=excelData.conditions[1];
+      sheet.getRow(7).height=countNumber(excelData.conditions[1].length);
+      totalLengthLast=totalLength;
+      totalLength+=sheet.getRow(7).height;
+      console.log('0--'+totalLength,AddTime);
+      newPage(totalLength,totalLengthLast,7);
+      console.log('1--'+totalLength,AddTime);
+    
+    // for(let i=6+AddTime,m=0;i<=conditions_end+AddTime;i++,m++){
+    //   sheet.getCell('C'+i).value='条件'+(m+1)+': '+excelData.conditions[m];
+    //   sheet.getRow(i).height=countNumber(excelData.conditions[m].length);
+    //   totalLength+=sheet.getRow(i).height;
+    //   console.log('0--'+i,m,totalLength,AddTime);
+    //   newPage(totalLength,i);
+    //   console.log('1--'+i,m,totalLength,AddTime);
+    // }
+    // sheet.mergeCells('B6','B'+(conditions_end+AddTime));
+
+    let area='A1:C7'
+     // 设置打印设置
+    //  let area='A1:C'+(conditions_end+AddTime);
+    //  let area='A1:C'+(address_end+1);
+     sheet.pageSetup.printArea=area;
+    // let materials_length=excelData.materials.length;
+    // let materials_end=conditions_end+materials_length;
+
+    // let phone_length=excelData.phone_numbers_address.length;
+    // let phone_end=materials_end+2+phone_length;
+
+    // let address_length=excelData.addresses.length;
+    // let address_end=address_length+1+phone_end;
     // 申办材料也是array类型
 
-    sheet.mergeCells('B'+(conditions_end+1),'B'+materials_end);
-    sheet.getCell('B'+(conditions_end+1)).value="申办材料";
-    for(let i=conditions_end+1,m=0;i<=materials_end;i++,m++){
-      sheet.getCell('C'+i).value='材料'+(m+1)+': '+excelData.materials[m];
-    }
+  //   sheet.mergeCells('B'+(conditions_end+1),'B'+materials_end);
+  //   sheet.getCell('B'+(conditions_end+1)).value="申办材料";
+  //   for(let i=conditions_end+1,m=0;i<=materials_end;i++,m++){
+  //     sheet.getCell('C'+i).value='材料'+(m+1)+': '+excelData.materials[m];
+  //     sheet.getRow(i).height=countNumber(excelData.materials[m].length);
+  //   }
+  //   sheet.getCell('B'+(materials_end+1)).value="审核时限";
+  //   sheet.getCell('C'+(materials_end+1)).value="法定办结时限:"+excelData.legal_limit+"  "+"承诺办结时限:"+excelData.promise_limit;
+  //   sheet.getRow(materials_end+1).height=countNumber(sheet.getCell('C'+(materials_end+1)).value.length);
+  //   // --------业务咨询part--------materials_end+2,
+  //   sheet.mergeCells('A'+(materials_end+2),'A'+phone_end);
+  //   sheet.getCell('A'+phone_end).value="业务咨询"
     
+    
+  //   // 申办所需资格条件是array类型
+  //   sheet.getCell('B'+(materials_end+2)).value="网络咨询平台";
+  //   const img1=excelData.consult_QR_code_path;
+  //   if(img1==''){
+  //     sheet.getCell('C'+(materials_end+2)).value='暂无'
+  //   }else{
+  //     const image1=workbook.addImage({
+  //       base64:img1,
+  //       extension:'jpeg'
+  //     })
+  //     sheet.getRow(materials_end+2).height='100px';
+  //     sheet.addImage(image1,{
+  //       tl:{col:2.9,row:materials_end+1.5},
+  //       ext:{width:100,height:100},
+  //       editAs: 'oneCell'
+  //     });  
+  //   }
+  //   sheet.mergeCells('B'+(materials_end+3),'B'+phone_end)
+    
+  //   sheet.getCell('B'+(materials_end+3)).value="咨询电话";
+  //   for(let i=materials_end+3,m=0;i<=phone_end;i++,m++){
+  //     sheet.getCell('C'+i).value='地址'+(m+1)+': '+excelData.phone_numbers_address[m]+"  电话" +(m+1)+': '+excelData.phone_numbers[m];
+  //     sheet.getRow(i).height=countNumber(sheet.getCell('C'+i).value.length);
 
-    sheet.getCell('B'+(materials_end+1)).value="审核时限";
-    sheet.getCell('C'+(materials_end+1)).value="法定办结时限:"+excelData.legal_limit+"  "+"承诺办结时限:"+excelData.promise_limit;
+  //   }
     
-    // --------业务咨询part--------materials_end+2,
-    sheet.mergeCells('A'+(materials_end+2),'A'+phone_end);
-    sheet.getCell('A'+phone_end).value="业务咨询"
+  //   // ----------业务办理part---------
     
-    
-    // 申办所需资格条件是array类型
-    sheet.getCell('B'+(materials_end+2)).value="网络咨询平台";
-    const img1=excelData.consult_QR_code_path;
-    if(img1==''){
-      sheet.getCell('C'+(materials_end+2)).value='暂无'
-    }else{
-      const image1=workbook.addImage({
-        base64:img1,
-        extension:'jpeg'
-      })
-      sheet.getRow(materials_end+2).height='100px';
-      sheet.addImage(image1,{
-        tl:{col:2.9,row:materials_end+1.5},
-        ext:{width:100,height:100},
-        editAs: 'oneCell'
-      });  
-    }
-    sheet.mergeCells('B'+(materials_end+3),'B'+phone_end)
-    
-    sheet.getCell('B'+(materials_end+3)).value="咨询电话";
-    for(let i=materials_end+3,m=0;i<=phone_end;i++,m++){
-      sheet.getCell('C'+i).value='地址'+(m+1)+': '+excelData.phone_numbers_address[m]+"  电话" +(m+1)+': '+excelData.phone_numbers[m];
-    }
-    
-    // ----------业务办理part---------
-    
-    sheet.mergeCells('A'+(phone_end+1),'A'+address_end);
-    sheet.getCell('A'+(phone_end+1)).value="业务办理"
-    sheet.getCell('B'+(phone_end+1)).value="业务办理二维码";
-    const img_service=excelData.service_QR_code_path;
+  //   sheet.mergeCells('A'+(phone_end+1),'A'+address_end);
+  //   sheet.getCell('A'+(phone_end+1)).value="业务办理"
+  //   sheet.getCell('B'+(phone_end+1)).value="业务办理二维码";
+  //   const img_service=excelData.service_QR_code_path;
 
-    if(img_service==''){
-      sheet.getCell('C'+(phone_end+1)).value='暂无';
-    }else{
-      const image5=workbook.addImage({
-        base64:img_service,
-        extension:'jpeg'
-      })
-      sheet.getRow(phone_end+1).height='100px';
-      sheet.addImage(image5,{
-        tl:{col:2.9,row:phone_end+0.5},
-        ext:{width:100,height:100},
-        editAs: 'oneCell'
-      })     
-    }
+  //   if(img_service==''){
+  //     sheet.getCell('C'+(phone_end+1)).value='暂无';
+  //   }else{
+  //     const image5=workbook.addImage({
+  //       base64:img_service,
+  //       extension:'jpeg'
+  //     })
+  //     sheet.getRow(phone_end+1).height='100px';
+  //     sheet.addImage(image5,{
+  //       tl:{col:2.9,row:phone_end+0.5},
+  //       ext:{width:100,height:100},
+  //       editAs: 'oneCell'
+  //     })     
+  //   }
   
-    sheet.mergeCells('B'+(phone_end+2),'B'+address_end)
-    sheet.getCell('B'+(phone_end+2)).value="办事大厅地址";
+  //   sheet.mergeCells('B'+(phone_end+2),'B'+address_end)
+  //   sheet.getCell('B'+(phone_end+2)).value="办事大厅地址";
 
-    for(let i=phone_end+2,m=0;i<=address_end;i++,m++){
-      sheet.getCell('C'+i).value='地址'+(m+1)+': '+excelData.addresses[m];
-    }
+  //   for(let i=phone_end+2,m=0;i<=address_end;i++,m++){
+  //     sheet.getCell('C'+i).value='地址'+(m+1)+': '+excelData.addresses[m];
+  //     sheet.getRow(i).height=countNumber(excelData.addresses[m].length);
 
-    // 页头和页尾的照片
-   const img_head= BASE64.BASE64_COL.img1;
-   const img_foot=BASE64.BASE64_COL.img4;
-   const image2=workbook.addImage({
-    base64:img_head,
-    extension:'jpeg'
-  })
-   const image3=workbook.addImage({
-    base64:img_foot,
-    extension:'jpeg'
-  })
-  // 设置样式
-   sheet.addImage(image2,{
-     tl:{col:0.01,row:0.03},
-     ext:{width:100,height:100},
-     editAs: 'oneCell'
-   });
+  //   }
 
-   sheet.getRow(address_end+1).height=100;
-   let range2='A'+(address_end+1.1)+':C'+(address_end+1.1)
-   sheet.addImage(image3,range2,{
-     ext:{width:100,height:100},
-     editAs: 'oneCell'
-   })
+  //   // 页头和页尾的照片
+  //  const img_head= BASE64.BASE64_COL.img1;
+  //  const img_foot=BASE64.BASE64_COL.img4;
+  //  const image2=workbook.addImage({
+  //   base64:img_head,
+  //   extension:'jpeg'
+  // })
+  //  const image3=workbook.addImage({
+  //   base64:img_foot,
+  //   extension:'jpeg'
+  // })   
+  // const img_background=BASE64.BASE64_COL.p7;
+
+  //  const image7=workbook.addImage({
+  //   base64:img_background,
+  //   extension:'png'
+  // })
+  // // sheet.addBackgroundImage(image7)
+  // // sheet.addImage(image7,area);
+
+  // // 设置样式
+  //  sheet.addImage(image2,{
+  //    tl:{col:0.1,row:0.3},
+  //    ext:{width:100,height:100},
+  //    editAs: 'oneCell'
+  //  });
+
+   
+
+  //  sheet.getRow(address_end+1).height=100;
+  //  let range2='A'+(address_end+1.1)+':C'+(address_end+1.1)
+  //  sheet.addImage(image3,range2,{
+  //    ext:{width:100,height:100},
+  //    editAs: 'oneCell'
+  //  })
     //导出  
     workbook.xlsx.writeBuffer().then((buf)=>{
         let blob = new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8' });
