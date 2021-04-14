@@ -151,13 +151,13 @@ class RecordTest extends React.Component {
     //#region 
 
     // 什么时候分页，并且添加一个空白的表格
-    const pageLength=720-100;
+    const pageLength=720;
     // 当前页面的长度
     let totalLength=0;
     // 除去当前格的前面的当前页面的长度
     let totalLengthLast=0;
     // 第几页
-    let Page=0;
+    let Page=1;
     // 加过的次数
     let AddTime=0;
     // 上次B列merge到这里
@@ -172,6 +172,12 @@ class RecordTest extends React.Component {
       base64:img_foot,
       extension:'jpeg'
     })   
+     let img_bottom=BASE64.BASE64_COL.p10;
+     let image10=workbook.addImage({
+      base64:img_bottom,
+      extension:'jpeg'
+    })   
+    
     function newPage(){
       // 没到一页
       if(totalLength<pageLength) {
@@ -181,38 +187,36 @@ class RecordTest extends React.Component {
       else if(totalLength==pageLength){
         totalLength=0;
         totalLengthLast=0;
-        sheet.getRow(i).height=100;
-        sheet.addImage(image3,{
-          tl:{col:0.1,row:i-0.9},
-          ext:{width:765,height:126},
+        console.log(Page,i);
+        sheet.addImage(image10,{
+          tl:{col:0,row:Page},
+          // br:{col:3,row:i},
+          ext:{width:770,height:960},
           editAs: 'undefined'
         });
-        i++;
-        Page=i+1;
+        Page=i;
         return;
       }
       // 是图片
       else if(flag==true){
-
         totalLength=100;
         let b=pageLength-totalLengthLast;
         totalLengthLast=0;
         sheet.getRow(i).height=b;
-        sheet.getRow(i+2).height=100;
-        sheet.getCell('A'+(i+2)).value=sheet.getCell('A'+i).value;
-        sheet.getCell('B'+(i+2)).value=sheet.getCell('B'+i).value;
-        merge_end_A=i+2;
+        sheet.getRow(i+1).height=100;
+        sheet.getCell('A'+(i+1)).value=sheet.getCell('A'+i).value;
+        sheet.getCell('B'+(i+1)).value=sheet.getCell('B'+i).value;
+        merge_end_A=i+1;
         sheet.getCell('A'+i).value='';
         sheet.getCell('B'+i).value='';
-        i++;
-        sheet.getRow(i).height=100;
-        sheet.addImage(image3,{
-          tl:{col:0.1,row:i-0.9},
-          ext:{width:765,height:126},
+        sheet.addImage(image10,{
+          tl:{col:0,row:Page},
+          // br:{col:3,row:i},
+          ext:{width:770,height:960},
           editAs: 'undefined'
         });
         i++;
-        Page++;
+        Page=i;
         flag=false;
         AddTime++;
         return ;
@@ -229,29 +233,28 @@ class RecordTest extends React.Component {
         // 前一页的内容表格
         sheet.getCell('C'+i).value=first;
         sheet.getRow(i).height=b;
-        i++;
-        sheet.getRow(i).height=100;
-        image3=workbook.addImage({
-          base64:img_foot,
+        image10=workbook.addImage({
+          base64:img_bottom,
           extension:'jpeg'
         }) 
-        sheet.addImage(image3,{
-          tl:{col:0.1,row:i-0.9},
-          ext:{width:765,height:126},
+        sheet.addImage(image10,{
+          tl:{col:0,row:Page},
+          // br:{col:3,row:i},
+          ext:{width:770,height:960},
           editAs: 'undefined'
         });
         // 第二页
         sheet.getCell('C'+(i+1)).value=end;
         // 处理B列
-        sheet.mergeCells('B'+merge_end,'B'+(i-1));
+        sheet.mergeCells('B'+merge_end,'B'+i);
         merge_end=i+1;
         // 处理A列
-        sheet.mergeCells('A'+merge_end_A,'A'+(i-1));
+        sheet.mergeCells('A'+merge_end_A,'A'+i);
         merge_end_A=i+1;
         
         sheet.getRow(i+1).height=countNumber(sheet.getCell('C'+(i+1)).value.length);
         totalLength=sheet.getRow(i+1).height;
-        Page=i+1;
+        Page=i;
         AddTime++;
         totalLengthLast=0;
         i++;
@@ -349,9 +352,7 @@ class RecordTest extends React.Component {
     // 申办材料
     //#region 
     let materials_length=excelData.materials.length;
-    let materials_end=i+materials_length-1;
-
-    
+  
     sheet.getCell('B'+i).value="申办材料";
     for(let m=0;m<materials_length;i++,m++){
       sheet.getCell('C'+i).value='材料'+(m+1)+': '+excelData.materials[m];
@@ -419,7 +420,6 @@ class RecordTest extends React.Component {
       totalLength+=sheet.getRow(i).height;
       newPage();
     }
-    console.log(merge_end)
     sheet.mergeCells('B'+merge_end,'B'+(i-1));
     sheet.mergeCells('A'+merge_end_A,'A'+(i-1));
     sheet.getCell('A'+merge_end_A).value="业务咨询";
@@ -427,8 +427,8 @@ class RecordTest extends React.Component {
     merge_end=i;
   //#endregion
 
-  // // ----------业务办理part---------
-  // //#region 
+  // ----------业务办理part---------
+  //#region 
     let address_length=excelData.addresses.length;
   //   // sheet.mergeCells('A'+(phone_end+1),'A'+address_end);
     sheet.getCell('A'+i).value="业务办理"
@@ -468,21 +468,25 @@ class RecordTest extends React.Component {
       totalLength+=sheet.getRow(i).height;
       newPage();
     }
-    console.log(merge_end,merge_end_A,i);
     sheet.mergeCells('B'+merge_end,'B'+(i-1));
     sheet.mergeCells('A'+merge_end_A,'A'+(i-1));
     //#endregion
 
     // 最后一页
     if(totalLength<pageLength){
+      console.log(pageLength,totalLength);
       let b=pageLength-totalLength;
-      sheet.getRow(i).height=b;
-
-      i++;
-      sheet.getRow(i).height=100;
-      sheet.addImage(image3,{
-        tl:{col:0.1,row:i-0.9},
-        ext:{width:765,height:126},
+      if(b>409.5){
+        sheet.getRow(i).height=409.5;
+        sheet.getRow(i+1).height=b-409.5;
+        i++;
+      }else{
+        sheet.getRow(i).height=b;
+      }
+      sheet.addImage(image10,{
+        tl:{col:0,row:Page},
+        // br:{col:3,row:i},
+        ext:{width:770,height:960},
         editAs: 'undefined'
       });
     }
