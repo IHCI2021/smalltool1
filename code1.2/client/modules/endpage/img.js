@@ -272,6 +272,17 @@ class RecordTest extends React.Component {
        ext:{width:100,height:100},
        editAs: 'oneCell'
      });
+    const img_bgl= BASE64.BASE64_COL.bgl1;
+    const image_bgl=workbook.addImage({
+      base64:img_bgl,
+      extension:'jpeg'
+    })
+    //  sheet.addImage(image_bgl,{
+    //    tl:{col:1,row:0.3},
+    //    ext:{width:100,height:100},
+    //    editAs: 'oneCell'
+    //  });
+    sheet.addImage(image_bgl,'B1:C1')
     //#region 
     sheet.pageSetup.printTitlesRow = '1:1';
     // 设置标题 办事指南
