@@ -151,7 +151,7 @@ class RecordTest extends React.Component {
     //#region 
 
     // 什么时候分页，并且添加一个空白的表格
-    const pageLength=775-100;
+    const pageLength=720-100;
     // 当前页面的长度
     let totalLength=0;
     // 除去当前格的前面的当前页面的长度
@@ -184,7 +184,7 @@ class RecordTest extends React.Component {
         sheet.getRow(i).height=100;
         sheet.addImage(image3,{
           tl:{col:0.1,row:i-0.9},
-          ext:{width:750,height:120},
+          ext:{width:765,height:126},
           editAs: 'undefined'
         });
         i++;
@@ -208,7 +208,7 @@ class RecordTest extends React.Component {
         sheet.getRow(i).height=100;
         sheet.addImage(image3,{
           tl:{col:0.1,row:i-0.9},
-          ext:{width:750,height:120},
+          ext:{width:765,height:126},
           editAs: 'undefined'
         });
         i++;
@@ -237,7 +237,7 @@ class RecordTest extends React.Component {
         }) 
         sheet.addImage(image3,{
           tl:{col:0.1,row:i-0.9},
-          ext:{width:750,height:120},
+          ext:{width:765,height:126},
           editAs: 'undefined'
         });
         // 第二页
@@ -366,7 +366,7 @@ class RecordTest extends React.Component {
 
     sheet.getCell('B'+i).value="审核时限";
     sheet.getCell('C'+i).value="法定办结时限:"+excelData.legal_limit+"  "+"承诺办结时限:"+excelData.promise_limit;
-    sheet.getRow(i).height=countNumber(sheet.getCell('C'+(materials_end+1)).value.length);
+    sheet.getRow(i).height=countNumber(sheet.getCell('C'+i).value.length);
     totalLengthLast=totalLength;
     totalLength+=sheet.getRow(i).height;
     newPage();
@@ -481,9 +481,9 @@ class RecordTest extends React.Component {
       i++;
       sheet.getRow(i).height=100;
       sheet.addImage(image3,{
-          tl:{col:0.1,row:i-0.9},
-          ext:{width:750,height:120},
-          editAs: 'undefined'
+        tl:{col:0.1,row:i-0.9},
+        ext:{width:765,height:126},
+        editAs: 'undefined'
       });
     }
 
