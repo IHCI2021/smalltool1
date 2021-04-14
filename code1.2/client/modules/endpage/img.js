@@ -175,7 +175,6 @@ class RecordTest extends React.Component {
     function newPage(){
       // 没到一页
       if(totalLength<pageLength) {
-        merge_end=i;
         return;
       }
       // 刚好一页
@@ -244,11 +243,11 @@ class RecordTest extends React.Component {
         // 第二页
         sheet.getCell('C'+(i+1)).value=end;
         // 处理B列
-        sheet.mergeCells('B'+merge_end,'B'+i);
-        merge_end=i;
+        sheet.mergeCells('B'+merge_end,'B'+(i-1));
+        merge_end=i+1;
         // 处理A列
-        sheet.mergeCells('A'+(merge_end_A+1),'A'+i);
-        merge_end_A=i;
+        sheet.mergeCells('A'+merge_end_A,'A'+(i-1));
+        merge_end_A=i+1;
         
         sheet.getRow(i+1).height=countNumber(sheet.getCell('C'+(i+1)).value.length);
         totalLength=sheet.getRow(i+1).height;
@@ -309,19 +308,21 @@ class RecordTest extends React.Component {
     totalLength+=sheet.getRow(5).height;
     let i=5;
     newPage();
-    merge_end_A=i;
+    merge_end_A=i+1;
     //#endregion
 
     // -------申办资格审核------------
     //申办所需资格条件
     //#region 
     // 先配置再merge
+    
     sheet.getCell('A'+(i+1)).value="申办资格审核";
     sheet.getCell('B'+(i+1)).value="申办所需资格条件"
 
     let conditions_lenght=excelData.conditions.length;
     // i是下一次要使用的  
     i++;
+    merge_end=i;
     for(let m=0;m<conditions_lenght;i++,m++){
       sheet.getCell('C'+i).value='条件'+(m+1)+': '+excelData.conditions[m];
       sheet.getRow(i).height=countNumber(excelData.conditions[m].length);
@@ -329,8 +330,9 @@ class RecordTest extends React.Component {
       totalLength+=sheet.getRow(i).height;
       newPage();
     }
-    sheet.mergeCells('B'+(merge_end+1),'B'+(i-1));
-    sheet.getCell('B'+(merge_end+1)).value="申办所需资格条件";
+    sheet.mergeCells('B'+merge_end,'B'+(i-1));
+    sheet.getCell('B'+merge_end).value="申办所需资格条件";
+    merge_end=i;
     //#endregion
 
     // 申办材料
@@ -338,7 +340,7 @@ class RecordTest extends React.Component {
     let materials_length=excelData.materials.length;
     let materials_end=i+materials_length-1;
 
-  //   sheet.mergeCells('B'+(conditions_end+1),'B'+materials_end);
+    
     sheet.getCell('B'+i).value="申办材料";
     for(let m=0;m<materials_length;i++,m++){
       sheet.getCell('C'+i).value='材料'+(m+1)+': '+excelData.materials[m];
@@ -348,6 +350,9 @@ class RecordTest extends React.Component {
       newPage();
     }
 
+    sheet.mergeCells('B'+merge_end,'B'+(i-1));
+    merge_end=i;
+
     sheet.getCell('B'+i).value="审核时限";
     sheet.getCell('C'+i).value="法定办结时限:"+excelData.legal_limit+"  "+"承诺办结时限:"+excelData.promise_limit;
     sheet.getRow(i).height=countNumber(sheet.getCell('C'+(materials_end+1)).value.length);
@@ -355,19 +360,18 @@ class RecordTest extends React.Component {
     totalLength+=sheet.getRow(i).height;
     newPage();
     i++;
-    sheet.mergeCells('A'+(merge_end_A+1),'A'+(i-1));
-    sheet.getCell('A'+(merge_end_A+1)).value="申办资格审核";
+    sheet.mergeCells('A'+merge_end_A,'A'+(i-1));
+    sheet.getCell('A'+merge_end_A).value="申办资格审核";
     merge_end_A=i;
-    //#endregion
+    merge_end=i;
+    // #endregion
 
 
     // --------业务咨询part--------
 
     //#region 
     let phone_length=excelData.phone_numbers_address.length;
-    // sheet.mergeCells('A'+(materials_end+2),'A'+phone_end);
     sheet.getCell('A'+i).value="业务咨询"
-    
     sheet.getCell('B'+i).value="网络咨询平台";
     const img1=excelData.consult_QR_code_path;
     if(img1==''){
@@ -393,8 +397,9 @@ class RecordTest extends React.Component {
         editAs: 'oneCell'
       });
     }
-  
+    
     i++;
+    merge_end=i;
     sheet.getCell('B'+i).value="咨询电话";
     for(let m=0;m<phone_length;i++,m++){
       sheet.getCell('C'+i).value='地址'+(m+1)+': '+excelData.phone_numbers_address[m]+"  电话" +(m+1)+': '+excelData.phone_numbers[m];
@@ -403,14 +408,16 @@ class RecordTest extends React.Component {
       totalLength+=sheet.getRow(i).height;
       newPage();
     }
+    console.log(merge_end)
     sheet.mergeCells('B'+merge_end,'B'+(i-1));
     sheet.mergeCells('A'+merge_end_A,'A'+(i-1));
-    sheet.getCell('A'+merge_end_A).value="网络咨询平台";
+    sheet.getCell('A'+merge_end_A).value="业务咨询";
     merge_end_A=i;
+    merge_end=i;
   //#endregion
 
-  // ----------业务办理part---------
-  //#region 
+  // // ----------业务办理part---------
+  // //#region 
     let address_length=excelData.addresses.length;
   //   // sheet.mergeCells('A'+(phone_end+1),'A'+address_end);
     sheet.getCell('A'+i).value="业务办理"
@@ -418,7 +425,8 @@ class RecordTest extends React.Component {
     const img_service=excelData.service_QR_code_path;
 
     if(img_service==''){
-      sheet.getCell('C'+(phone_end+1)).value='暂无';
+      sheet.getCell('C'+i).value='暂无'
+      sheet.getRow(i).height=20;
       totalLengthLast=totalLength;
       totalLength+=sheet.getRow(i).height;
       newPage();
@@ -439,7 +447,7 @@ class RecordTest extends React.Component {
       })     
     }
     i++;
-  
+    merge_end=i;
     sheet.getCell('B'+i).value="办事大厅地址";
 
     for(let m=0;m<address_length;i++,m++){
