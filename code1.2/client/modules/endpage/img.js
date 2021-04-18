@@ -1028,7 +1028,7 @@ class RecordTest extends React.Component {
                         display: "inline-block",
                       }}
                     >
-                      {index + 1 + "." + item + phonearray[index]}
+                      {index + 1 + ". 地址:" + item + ' 电话:'+phonearray[index]}
                     </div>
                   ))}
               </div>

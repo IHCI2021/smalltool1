@@ -1,7 +1,8 @@
 import React, {Component} from 'react';
-import { Divider, Input, Select, Table, Button, } from 'antd';
+import { Divider, Input, Select, Table, Button } from 'antd';
 import axios from 'axios';
 import qs from 'qs';
+import cookie from 'react-cookies'
 import * as BASE64 from '../endpage/constants';
 const {Search} = Input;
 const {Option} = Select;
@@ -74,7 +75,6 @@ const rootUser={
 };
 
 
-
 class ListItem extends Component{
     constructor(props){
       super(props);
@@ -97,7 +97,6 @@ class ListItem extends Component{
       this.routerCreate = this.routerCreate.bind(this);
       this.routerUpdate = this.routerUpdate.bind(this);
       this.convertTime = this.convertTime.bind(this);
-      this.itemRender = this.itemRender.bind(this);
       // this.getItem = this.getItem.bind(this);
       // this.delItem = this.delItem.bind(this);
     }
@@ -139,15 +138,6 @@ toindex(){
       this.props.router.push('/login');
 		}
 	  })
-  }
-  itemRender(current, type, originalElement) {
-    if (type === 'prev') {
-      return <a>&lt;</a>;
-    }
-    if (type === 'next') {
-      return <a>&gt;</a>;
-    }
-    return originalElement;
   }
 
     //转换时间
@@ -599,7 +589,7 @@ toindex(){
                 <div>
                     <div style={{ marginBottom: 16 }}>
                     <span>* 当前每页显示事项数:  </span>
-                    <Select defaultValue="10" style={{ width: 120 ,fontSize:'20px'}} onChange={this.setPageNum}>
+                    <Select defaultValue="10" style={{ width: 120 }} onChange={this.setPageNum}>
                     <Option value="5">5</Option>
                     <Option value="10">10</Option>
                     <Option value="20">20</Option>
@@ -612,16 +602,13 @@ toindex(){
                       创建新事项
                     </Button>
                     </div>
-                    <div >
-                  
-                    <Table 
+                    <Table
                     rowSelection={rowSelection}
                     columns={columns}
                     dataSource={this.state.data}
-                    pagination={{itemRender:this.itemRender,pageSize: this.state.pageSize, total: this.state.total,style:{fontSize:'20px'} }}
+                    pagination={{pageSize: this.state.pageSize, total: this.state.total }}
                     onChange={this.getItems}
                     />
-                    </div>
                 </div>
             </div></div>
         );
