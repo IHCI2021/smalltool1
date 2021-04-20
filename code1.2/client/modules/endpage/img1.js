@@ -146,18 +146,24 @@ class RecordTest extends React.Component {
       }
     }
 
+    // 背景图片
+    const img_background=BASE64.BASE64_COL.p7;
+    const image7=workbook.addImage({
+          base64:img_background,
+          extension:'png'
+        })
     
     //用于分页的函数和变量
     //#region 
 
     // 什么时候分页，并且添加一个空白的表格
-    const pageLength=720;
+    const pageLength=775;
     // 当前页面的长度
     let totalLength=0;
     // 除去当前格的前面的当前页面的长度
     let totalLengthLast=0;
     // 第几页
-    let Page=1;
+    let Page=0;
     // 加过的次数
     let AddTime=0;
     // 上次B列merge到这里
@@ -166,57 +172,32 @@ class RecordTest extends React.Component {
     let merge_end_A=0;
     // 是否是图片
     let flag=false;
-
-     let img_foot=BASE64.BASE64_COL.img4;
-     let image3=workbook.addImage({
-      base64:img_foot,
-      extension:'jpeg'
-    })   
-     let img_bottom=BASE64.BASE64_COL.p10;
-     let image10=workbook.addImage({
-      base64:img_bottom,
-      extension:'jpeg'
-    })   
-    
     function newPage(){
       // 没到一页
       if(totalLength<pageLength) {
+        merge_end=i;
         return;
       }
       // 刚好一页
       else if(totalLength==pageLength){
         totalLength=0;
         totalLengthLast=0;
-        console.log(Page,i);
-        sheet.addImage(image10,{
-          tl:{col:0,row:Page},
-          // br:{col:3,row:i},
-          ext:{width:770,height:960},
-          editAs: 'undefined'
-        });
-        Page=i;
+        let area='A'+Page+':C'+i;
+        sheet.addImage(image7,area);
+        Page=i+1;
         return;
       }
       // 是图片
       else if(flag==true){
+        console.log(i +'跑');
         totalLength=100;
         let b=pageLength-totalLengthLast;
         totalLengthLast=0;
-        sheet.getRow(i).height=b;
-        sheet.getRow(i+1).height=100;
-        sheet.getCell('A'+(i+1)).value=sheet.getCell('A'+i).value;
-        sheet.getCell('B'+(i+1)).value=sheet.getCell('B'+i).value;
-        merge_end_A=i+1;
-        sheet.getCell('A'+i).value='';
-        sheet.getCell('B'+i).value='';
-        sheet.addImage(image10,{
-          tl:{col:0,row:Page},
-          // br:{col:3,row:i},
-          ext:{width:770,height:960},
-          editAs: 'undefined'
-        });
+        sheet.getCell('C'+i).height=b;
+        let area='A'+Page+':C'+i;
+        sheet.addImage(image7,area);
         i++;
-        Page=i;
+        Page++;
         flag=false;
         AddTime++;
         return ;
@@ -225,36 +206,26 @@ class RecordTest extends React.Component {
       else{
         //b是该页余下的部分
         let b=pageLength-totalLengthLast;
-        //22/20，如果是文字的解法
+        //22/20
         let length=Math.floor(b*1.1);
         let first=sheet.getCell('C'+i).value.substring(0,length);
         let end=sheet.getCell('C'+i).value.substring(length);
         // 处理C列
-        // 前一页的内容表格
         sheet.getCell('C'+i).value=first;
-        sheet.getRow(i).height=b;
-        image10=workbook.addImage({
-          base64:img_bottom,
-          extension:'jpeg'
-        }) 
-        sheet.addImage(image10,{
-          tl:{col:0,row:Page},
-          // br:{col:3,row:i},
-          ext:{width:770,height:960},
-          editAs: 'undefined'
-        });
-        // 第二页
         sheet.getCell('C'+(i+1)).value=end;
         // 处理B列
         sheet.mergeCells('B'+merge_end,'B'+i);
-        merge_end=i+1;
+        merge_end=i;
         // 处理A列
-        sheet.mergeCells('A'+merge_end_A,'A'+i);
-        merge_end_A=i+1;
-        
-        sheet.getRow(i+1).height=countNumber(sheet.getCell('C'+(i+1)).value.length);
+        sheet.mergeCells('A'+(merge_end_A+1),'A'+i);
+        merge_end_A=i;
+        sheet.getRow(i).height=b;
+        sheet.getRow(i+1).height=countNumber(sheet.getCell('C'+i).value.length);
         totalLength=sheet.getRow(i+1).height;
-        Page=i;
+        // 设置样式
+        let area='A'+Page+':C'+i;
+        sheet.addImage(image7,area);
+        Page=i+1;
         AddTime++;
         totalLengthLast=0;
         i++;
@@ -265,27 +236,6 @@ class RecordTest extends React.Component {
     //#endregion
     
     // 页头 & 不变的事项part
-    const img_head= BASE64.BASE64_COL.img1;
-    const image2=workbook.addImage({
-      base64:img_head,
-      extension:'jpeg'
-    })
-     sheet.addImage(image2,{
-       tl:{col:0.1,row:0.3},
-       ext:{width:100,height:100},
-       editAs: 'oneCell'
-     });
-    const img_bgl= BASE64.BASE64_COL.bgl1;
-    const image_bgl=workbook.addImage({
-      base64:img_bgl,
-      extension:'jpeg'
-    })
-    //  sheet.addImage(image_bgl,{
-    //    tl:{col:1,row:0.3},
-    //    ext:{width:100,height:100},
-    //    editAs: 'oneCell'
-    //  });
-    sheet.addImage(image_bgl,'B1:C1')
     //#region 
     sheet.pageSetup.printTitlesRow = '1:1';
     // 设置标题 办事指南
@@ -322,21 +272,19 @@ class RecordTest extends React.Component {
     totalLength+=sheet.getRow(5).height;
     let i=5;
     newPage();
-    merge_end_A=i+1;
+    merge_end_A=i;
     //#endregion
 
-    // -------申办资格审核------------
+    // -------申办资格审核------------6-materials_end+1
     //申办所需资格条件
     //#region 
     // 先配置再merge
-    
     sheet.getCell('A'+(i+1)).value="申办资格审核";
     sheet.getCell('B'+(i+1)).value="申办所需资格条件"
 
     let conditions_lenght=excelData.conditions.length;
     // i是下一次要使用的  
     i++;
-    merge_end=i;
     for(let m=0;m<conditions_lenght;i++,m++){
       sheet.getCell('C'+i).value='条件'+(m+1)+': '+excelData.conditions[m];
       sheet.getRow(i).height=countNumber(excelData.conditions[m].length);
@@ -344,15 +292,20 @@ class RecordTest extends React.Component {
       totalLength+=sheet.getRow(i).height;
       newPage();
     }
-    sheet.mergeCells('B'+merge_end,'B'+(i-1));
-    sheet.getCell('B'+merge_end).value="申办所需资格条件";
-    merge_end=i;
+
+    console.log(merge_end,i);
+    sheet.mergeCells('B'+(merge_end+1),'B'+(i-1));
+    sheet.getCell('B'+(merge_end+1)).value="申办所需资格条件"
     //#endregion
+    
+    console.log(totalLength);
 
     // 申办材料
     //#region 
     let materials_length=excelData.materials.length;
-  
+    let materials_end=i+materials_length-1;
+
+  //   sheet.mergeCells('B'+(conditions_end+1),'B'+materials_end);
     sheet.getCell('B'+i).value="申办材料";
     for(let m=0;m<materials_length;i++,m++){
       sheet.getCell('C'+i).value='材料'+(m+1)+': '+excelData.materials[m];
@@ -361,29 +314,23 @@ class RecordTest extends React.Component {
       totalLength+=sheet.getRow(i).height;
       newPage();
     }
-
-    sheet.mergeCells('B'+merge_end,'B'+(i-1));
-    merge_end=i;
-
+    console.log(totalLength);
     sheet.getCell('B'+i).value="审核时限";
     sheet.getCell('C'+i).value="法定办结时限:"+excelData.legal_limit+"  "+"承诺办结时限:"+excelData.promise_limit;
-    sheet.getRow(i).height=countNumber(sheet.getCell('C'+i).value.length);
+    sheet.getRow(i).height=countNumber(sheet.getCell('C'+(materials_end+1)).value.length);
     totalLengthLast=totalLength;
     totalLength+=sheet.getRow(i).height;
     newPage();
     i++;
-    sheet.mergeCells('A'+merge_end_A,'A'+(i-1));
-    sheet.getCell('A'+merge_end_A).value="申办资格审核";
-    merge_end_A=i;
-    merge_end=i;
-    // #endregion
+    //#endregion
 
 
-    // --------业务咨询part--------
-
-    //#region 
+  //     // --------业务咨询part--------materials_end+2,
+      //#region 
     let phone_length=excelData.phone_numbers_address.length;
+    // sheet.mergeCells('A'+(materials_end+2),'A'+phone_end);
     sheet.getCell('A'+i).value="业务咨询"
+    
     sheet.getCell('B'+i).value="网络咨询平台";
     const img1=excelData.consult_QR_code_path;
     if(img1==''){
@@ -398,7 +345,6 @@ class RecordTest extends React.Component {
         extension:'jpeg'
       })
       sheet.getRow(i).height=100;
-      // 先判断能不能放入100
       totalLengthLast=totalLength;
       totalLength+=100;
       flag=true;
@@ -408,10 +354,10 @@ class RecordTest extends React.Component {
         ext:{width:100,height:100},
         editAs: 'oneCell'
       });
+      console.log(i);
     }
-    
+  //   // sheet.mergeCells('B'+(materials_end+3),'B'+phone_end)
     i++;
-    merge_end=i;
     sheet.getCell('B'+i).value="咨询电话";
     for(let m=0;m<phone_length;i++,m++){
       sheet.getCell('C'+i).value='地址'+(m+1)+': '+excelData.phone_numbers_address[m]+"  电话" +(m+1)+': '+excelData.phone_numbers[m];
@@ -420,15 +366,11 @@ class RecordTest extends React.Component {
       totalLength+=sheet.getRow(i).height;
       newPage();
     }
-    sheet.mergeCells('B'+merge_end,'B'+(i-1));
-    sheet.mergeCells('A'+merge_end_A,'A'+(i-1));
-    sheet.getCell('A'+merge_end_A).value="业务咨询";
-    merge_end_A=i;
-    merge_end=i;
-  //#endregion
+    console.log(totalLength);
 
-  // ----------业务办理part---------
-  //#region 
+  //    //#endregion
+
+  // //   // ----------业务办理part---------
     let address_length=excelData.addresses.length;
   //   // sheet.mergeCells('A'+(phone_end+1),'A'+address_end);
     sheet.getCell('A'+i).value="业务办理"
@@ -436,8 +378,7 @@ class RecordTest extends React.Component {
     const img_service=excelData.service_QR_code_path;
 
     if(img_service==''){
-      sheet.getCell('C'+i).value='暂无'
-      sheet.getRow(i).height=20;
+      sheet.getCell('C'+(phone_end+1)).value='暂无';
       totalLengthLast=totalLength;
       totalLength+=sheet.getRow(i).height;
       newPage();
@@ -450,6 +391,7 @@ class RecordTest extends React.Component {
       totalLengthLast=totalLength;
       totalLength+=100;
       flag=true;
+      console.log(totalLength,totalLengthLast);
       newPage();  
       sheet.addImage(image5,{
         tl:{col:2.9,row:i-0.5},
@@ -458,42 +400,44 @@ class RecordTest extends React.Component {
       })     
     }
     i++;
-    merge_end=i;
-    sheet.getCell('B'+i).value="办事大厅地址";
+  //   // sheet.mergeCells('B'+(phone_end+2),'B'+address_end)
+  //   sheet.getCell('B'+i).value="办事大厅地址";
 
-    for(let m=0;m<address_length;i++,m++){
-      sheet.getCell('C'+i).value='地址'+(m+1)+': '+excelData.addresses[m];
-      sheet.getRow(i).height=countNumber(excelData.addresses[m].length);
-      totalLengthLast=totalLength;
-      totalLength+=sheet.getRow(i).height;
-      newPage();
-    }
-    sheet.mergeCells('B'+merge_end,'B'+(i-1));
-    sheet.mergeCells('A'+merge_end_A,'A'+(i-1));
-    //#endregion
+  //   for(let m=0;i<=address_length;i++,m++){
+  //     sheet.getCell('C'+i).value='地址'+(m+1)+': '+excelData.addresses[m];
+  //     sheet.getRow(i).height=countNumber(excelData.addresses[m].length);
+  //     totalLengthLast=totalLength;
+  //     totalLength+=sheet.getRow(i).height;
+  //     newPage();
+  //   }
 
-    // 最后一页
-    if(totalLength<pageLength){
-      console.log(pageLength,totalLength);
-      let b=pageLength-totalLength;
-      if(b>409.5){
-        sheet.getRow(i).height=409.5;
-        sheet.getRow(i+1).height=b-409.5;
-        i++;
-      }else{
-        sheet.getRow(i).height=b;
-      }
-      sheet.addImage(image10,{
-        tl:{col:0,row:Page},
-        // br:{col:3,row:i},
-        ext:{width:770,height:960},
-        editAs: 'undefined'
-      });
-    }
+  //   // 页头和页尾的照片
+  //  const img_head= BASE64.BASE64_COL.img1;
+  //  const img_foot=BASE64.BASE64_COL.img4;
+  //  const image2=workbook.addImage({
+  //   base64:img_head,
+  //   extension:'jpeg'
+  // })
+  //  const image3=workbook.addImage({
+  //   base64:img_foot,
+  //   extension:'jpeg'
+  // })   
+  //  sheet.addImage(image2,{
+  //    tl:{col:0.1,row:0.3},
+  //    ext:{width:100,height:100},
+  //    editAs: 'oneCell'
+  //  });
+  //  sheet.getRow(address_end+1).height=100;
+  //  let range2='A'+(address_end+1.1)+':C'+(address_end+1.1)
+  //  sheet.addImage(image3,range2,{
+  //    ext:{width:100,height:100},
+  //    editAs: 'oneCell'
+  //  })
 
-
-
-  let area='A1:C'+i;
+  let area='A1:C20';
+  // 设置打印设置
+ //  let area='A1:C'+(conditions_end+AddTime);
+ //  let area='A1:C'+(address_end+1);
   sheet.pageSetup.printArea=area;
     //导出  
     workbook.xlsx.writeBuffer().then((buf)=>{

@@ -1,20 +1,10 @@
 import * as BASE64 from "./constants";
 import React from "react";
 import axios from "axios";
-import {Button} from 'antd';
+import {Button } from 'antd';
 import ExcelJS from 'exceljs'
-
 // import  './App.css';
 
-const textStyle={
-  color:'#038DCB',
-  textAlign:"center",
-  fontSize:"35px",
-  width: "60px", 
-  position: "relative",
-  top:"50%",
-  transform: "translateY(-50%)"
-}
 //bgl.png和logo.jpg
 const img1Style = {
   background: `url(${BASE64.BASE64_COL.img1}) left 100px top no-repeat,url(${BASE64.BASE64_COL.img5}) right top no-repeat`,
@@ -25,20 +15,21 @@ const img1Style = {
   Display: "flex",
 };
 //p1.jpg
-
 const img2Style = {
-  textAlign:"center",
+  backgroundImage: `url(${BASE64.BASE64_COL.img2})`,
+  backgroundSize: "100% 100%",
   width: "70px",
-  border:"solid 5px grey", 
+  height: "300px",
+  backgroundRepeat: "no-repeat",
   position: "relative",
   Display: "flex",
 };
-
 //p2.jpg
 const img3Style = {
-  textAlign:"center",
+  background: `url(${BASE64.BASE64_COL.img3})`,
+  backgroundSize: "100% 100%",
   width: "70px",
-  border:"solid 5px grey", 
+  backgroundRepeat: "no-repeat",
   position: "relative",
   Display: "flex",
 };
@@ -502,43 +493,20 @@ class RecordTest extends React.Component {
 
 
 
-    function openDownloadDialog(url, saveName) {
-      if (typeof url == 'object' && url instanceof Blob) {
-          url = URL.createObjectURL(url); // 创建blob地址
-      }
-      let aLink = document.createElement('a');
-      aLink.href = url;
-      aLink.download = saveName || ''; // HTML5新增的属性，指定保存文件名，可以不要后缀，注意，file:///模式下不会生效
-      let event;
-      if (window.MouseEvent) event = new MouseEvent('click');
-      else {
-          event = document.createEvent('MouseEvents');
-          event.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
-      }
-      aLink.dispatchEvent(event);
-  }
-
   let area='A1:C'+i;
   sheet.pageSetup.printArea=area;
-  let fileName=excelData.item_name+"办事指南";
-  //导出 
-  let buffer=workbook.xlsx.writeBuffer(); 
-  buffer.then(res=>{
-    let blob=new Blob([res],{type: "application/octet-stream"});
-    openDownloadDialog(blob, fileName + '.xlsx');
-  })
-    
-    // workbook.xlsx.writeBuffer().then((buf)=>{
-    //     let blob = new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8' });
-    //     const downloadElement = document.createElement('a');
-    //     let href = window.URL.createObjectURL(blob)
-		//     downloadElement.href = href
-		//     downloadElement.download = excelData.item_name+"办事指南"+".xlsx"; // 文件名字
-    //     document.body.appendChild(downloadElement)
-		//     downloadElement.click()
-		//     document.body.removeChild(downloadElement) // 下载完成移除元素
-		//     window.URL.revokeObjectURL(href) // 释放掉blob对象
-    // })    
+    //导出  
+    workbook.xlsx.writeBuffer().then((buf)=>{
+        let blob = new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8' });
+        const downloadElement = document.createElement('a');
+        let href = window.URL.createObjectURL(blob)
+		    downloadElement.href = href
+		    downloadElement.download = excelData.item_name+"办事指南.xlsx"; // 文件名字
+        document.body.appendChild(downloadElement)
+		    downloadElement.click()
+		    document.body.removeChild(downloadElement) // 下载完成移除元素
+		    window.URL.revokeObjectURL(href) // 释放掉blob对象
+    })    
   }
   render() {
     let cnarray = this.state.posts.conditions;
@@ -574,9 +542,7 @@ class RecordTest extends React.Component {
             margin: "0 auto",
           }}
         >
-          {/* 广州人设 */}
           <div style={img1Style}></div>
-          {/* 旁边的装饰 */}
           <div
             style={{
               position: "relative",
@@ -586,7 +552,7 @@ class RecordTest extends React.Component {
               top: "-200px",
             }}
           >
-            {/* 办事指南 */}
+            
             <h1
               style={{
                 display: "inlineblock",
@@ -594,32 +560,27 @@ class RecordTest extends React.Component {
                 color: "#0374B7",
                 position: "relative",
                 top: "250px",
-                left: "400px",
+                left: "100px",
                 letterSpacing: "20px",
-                width: "400px",
+                width: "1000px",
               }}
             >
               办事指南
             </h1>
-            {/* 导出excel的按钮 */}
             <Button 
              style={{
-              fontSize: "18px",
               position:"absolute",
-              width:'120px',
-              height:'50px',
-              top:"265px",
-              left:"750px"
+              top:"150px",
+              right:"150px"
              }}
             type="primary" onClick={this.exportExcel.bind(this)}>导出excel</Button>
-            {/* item_name */}
             <h1
               style={{
                 fontSize: "48px",
                 color: "#0374B7",
                 position: "relative",
-                top: "70px",
-                left: "100px",
+                top: "-100px",
+                left: "200px",
                 letterSpacing: "20px",
                 width: "1000px",
                 height: "100px",
@@ -628,7 +589,6 @@ class RecordTest extends React.Component {
               {this.state.posts.item_name}
             </h1>
           </div>
-          
           <div
             style={{
               display: "-webkit-flex" /* Safari */,
@@ -637,7 +597,9 @@ class RecordTest extends React.Component {
               width: "1210px",
               margin: "0 auto",
               position: "relative",
+
               top: "-10px",
+
               marginTop: "-30px",
             }}
           >
@@ -649,12 +611,7 @@ class RecordTest extends React.Component {
                 flex: "11",
               }}
             >
-              {/* 事项 */}
-              <div style={img2Style}>
-                <div style={textStyle}>
-                事项
-                </div>
-              </div>
+              <div style={img2Style} />
             </div>
             <div
               style={{
@@ -669,7 +626,7 @@ class RecordTest extends React.Component {
             >
               <div
                 style={{
-                  fontSize: "20px",
+                  fontSize: "18px",
                   lineHeight: "50px",
                   border: "#038DCB solid 2px",
                   borderLeftWidth: "8px",
@@ -682,7 +639,7 @@ class RecordTest extends React.Component {
               <div
                 style={{
                   lineHeight: "50px",
-                  fontSize: "20px",
+                  fontSize: "18px",
 
                   border: "#038DCB solid 2px",
                   borderLeftWidth: "8px",
@@ -694,7 +651,7 @@ class RecordTest extends React.Component {
               </div>
               <div
                 style={{
-                  fontSize: "20px",
+                  fontSize: "18px",
                   lineHeight: "50px",
                   border: "#038DCB solid 2px",
                   borderLeftWidth: "8px",
@@ -708,6 +665,7 @@ class RecordTest extends React.Component {
                 style={{
                   lineHeight: "50px",
                   fontSize: "18px",
+
                   border: "#038DCB solid 2px",
                   borderLeftWidth: "8px",
                   width: "660px",
@@ -718,12 +676,11 @@ class RecordTest extends React.Component {
               </div>
               <div
                 style={{
-                  fontSize: "20px",
+                  fontSize: "18px",
                   border: "#038DCB solid 2px",
                   borderLeftWidth: "8px",
                   width: "370px",
                   textIndent: "2rem",
-                  lineHeight:"50px"
                 }}
               >
                 事项内容（待遇标准）
@@ -731,7 +688,8 @@ class RecordTest extends React.Component {
               <div
                 style={{
                   lineHeight: "50px",
-                  fontSize: "20px",
+                  fontSize: "18px",
+
                   border: "#038DCB solid 2px",
                   borderLeftWidth: "8px",
                   width: "660px",
@@ -742,7 +700,7 @@ class RecordTest extends React.Component {
               </div>
               <div
                 style={{
-                  fontSize: "20px",
+                  fontSize: "18px",
                   lineHeight: "65px",
                   border: "#038DCB solid 2px",
                   borderLeftWidth: "8px",
@@ -754,8 +712,8 @@ class RecordTest extends React.Component {
               </div>
               <div
                 style={{
-                  lineHeight: "35px",
-                  fontSize: "20px",
+                  lineHeight: "65px",
+                  fontSize: "18px",
                   width: "660px",
                   border: "#038DCB solid 2px",
                   borderLeftWidth: "8px",
@@ -789,11 +747,7 @@ class RecordTest extends React.Component {
                 flex: "11",
               }}
             >
-              <div style={img3Style}>
-                <div style={textStyle}>
-                  申办资格审核
-                </div>
-                </div>
+              <div style={img3Style} />
             </div>
             <div
               style={{
@@ -811,7 +765,7 @@ class RecordTest extends React.Component {
                   position: "relative",
                   Display: "flex",
                   fontSize: "20px",
-                  minHeight:'100px',
+
                   border: "#AAAAAA solid 2px",
                   borderLeftWidth: "8px",
                   width: "370px",
@@ -825,7 +779,7 @@ class RecordTest extends React.Component {
                   position: "relative",
                   Display: "flex",
                   fontSize: "20px",
-                  lineHeight: "25px",
+                  lineHeight: "32px",
                   border: "#AAAAAA solid 2px",
                   borderLeftWidth: "8px",
                   width: "660px",
@@ -848,7 +802,7 @@ class RecordTest extends React.Component {
                   position: "relative",
                   Display: "flex",
                   fontSize: "20px",
-                  minHeight:"100px",
+
                   border: "#AAAAAA solid 2px",
                   borderLeftWidth: "8px",
                   width: "370px",
@@ -944,9 +898,7 @@ class RecordTest extends React.Component {
                 flex: "11",
               }}
             >
-              <div style={img2Style}>
-                <div style={textStyle}>业务咨询</div>
-              </div>
+              <div style={img5Style} />
             </div>
             <div
               style={{
@@ -993,7 +945,7 @@ class RecordTest extends React.Component {
                   border: " #038DCB solid 2px",
                   borderLeftWidth: "8px",
                   width: "370px",
-                  height: "300px",
+                  height: "115px",
                 }}
               >
                 <img
@@ -1016,7 +968,7 @@ class RecordTest extends React.Component {
                   border: "#038DCB solid 2px",
                   borderLeftWidth: "8px",
                   width: "660px",
-                  height: "300px",
+                  height: "115px",
                 }}
               >
                 {phone_address_array &&
@@ -1057,9 +1009,7 @@ class RecordTest extends React.Component {
                 flex: "11",
               }}
             >
-              <div style={img2Style} >
-                <div style={textStyle}>业务办理</div>
-              </div>
+              <div style={img6Style} />
             </div>
             <div
               style={{
