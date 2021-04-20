@@ -73,6 +73,8 @@ const rootUser={
 	zIndex: '999',
 };
 
+const pagination={position:'bottom'}
+
 
 
 class ListItem extends Component{
@@ -86,6 +88,8 @@ class ListItem extends Component{
         total: 0,
         currPage:1,  //当前页面值
         isSearch: false,
+        top:'none',
+        bottom:'bottomCenter',
         token: typeof window!=="undefined"?localStorage.getItem("token"):""
       }
 
@@ -618,7 +622,7 @@ toindex(){
                     rowSelection={rowSelection}
                     columns={columns}
                     dataSource={this.state.data}
-                    pagination={{itemRender:this.itemRender,pageSize: this.state.pageSize, total: this.state.total,style:{fontSize:'20px'} }}
+                    pagination={{position: [this.state.top, this.state.bottom],itemRender:this.itemRender,pageSize: this.state.pageSize, total: this.state.total,style:{fontSize:'20px'} }}
                     onChange={this.getItems}
                     />
                     </div>
