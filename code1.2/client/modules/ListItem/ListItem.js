@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import { Divider, Input, Select, Table, Button, } from 'antd';
+import { Divider, Input, Select, Table, Button,Pagination } from 'antd';
 import axios from 'axios';
 import qs from 'qs';
 import * as BASE64 from '../endpage/constants';
@@ -73,9 +73,6 @@ const rootUser={
 	zIndex: '999',
 };
 
-const pagination={position:'bottom'}
-
-
 
 class ListItem extends Component{
     constructor(props){
@@ -88,8 +85,6 @@ class ListItem extends Component{
         total: 0,
         currPage:1,  //当前页面值
         isSearch: false,
-        top:'none',
-        bottom:'bottomCenter',
         token: typeof window!=="undefined"?localStorage.getItem("token"):""
       }
 
@@ -591,40 +586,71 @@ toindex(){
 			</div>
       </div>
             <div style={{width:1400, height:1600, margin:"auto"}}>
-                <Divider
+                <Divider style={{fontSize:20,paddingTop:15, paddingBottom:15}}
+                >事项列表</Divider>
+                {/* <Divider
                 orientation="left"
                 style={{paddingTop:15, paddingBottom:15, fontSize:20}}
-                >事项列表</Divider>
+                >事项列表</Divider> */}
                 <Search placeholder="请输入要搜索的事项名称"
                 size="large"
                 onSearch={this.searchItem}
-                style={{paddingBottom:15}}
+                style={{paddingBottom:15,width:'500px'}}
                 enterButton />
-                <div>
-                    <div style={{ marginBottom: 16 }}>
-                    <span>* 当前每页显示事项数:  </span>
-                    <Select defaultValue="10" style={{ width: 120 ,fontSize:'20px'}} onChange={this.setPageNum}>
+                
+                <Button type="primary" onClick={this.delSelectedItems} disabled={!hasSelected} loading={loading} style={{marginLeft: 20,height:'40px'}}>
+                        批量删除
+                    </Button>
+                <Button type="primary" style={{marginLeft: 20 ,height:'40px'}} onClick={this.routerCreate}>
+                      创建新事项
+                    </Button>
+                    {/* <span style={{marginLeft:'10px',fontSize:'20px'}}>当前每页显示事项数:  </span>
+                <Select defaultValue="10" style={{ width: 120 ,fontSize:'20px'}} onChange={this.setPageNum}>
                     <Option value="5">5</Option>
                     <Option value="10">10</Option>
                     <Option value="20">20</Option>
-                    </Select>
-
-                    <Button type="primary" onClick={this.delSelectedItems} disabled={!hasSelected} loading={loading} style={{marginLeft: 60}}>
-                        批量删除
-                    </Button>
-                    <Button type="primary" style={{marginLeft: 20}} onClick={this.routerCreate}>
-                      创建新事项
-                    </Button>
-                    </div>
+                    </Select>  */}
+                <div>
                     <div >
                   
                     <Table 
                     rowSelection={rowSelection}
                     columns={columns}
                     dataSource={this.state.data}
-                    pagination={{position: [this.state.top, this.state.bottom],itemRender:this.itemRender,pageSize: this.state.pageSize, total: this.state.total,style:{fontSize:'20px'} }}
+                    // pagination={{itemRender:this.itemRender,pageSize: this.state.pageSize, total: this.state.total,style:{fontSize:'20px'} }}
+                    pagination={{position:['bottom','center'] }}
                     onChange={this.getItems}
-                    />
+                    /> 
+                    <div style={{
+                      textAlign:'center',
+                      margin:'0 auto',
+                      padding:'0',
+                      position:'relative'
+                    }}>
+                      
+                    <Pagination
+                    itemRender={this.itemRender}
+                    pageSize={ this.state.pageSize}
+                    total={ this.state.total}
+                    style={{
+                            fontSize:'20px',
+                            marginTop:'10px',
+                            display:'inline-block'
+                          }}
+                    > 
+                    </Pagination>
+                    <Select defaultValue="10" 
+                    size='small'
+                    style={{ width: 100 ,fontSize:'16px',
+                    marginLeft:'5px',
+                    display:'inline-block',
+                  }} 
+                    onChange={this.setPageNum}>
+                    <Option value="5">5条/页</Option>
+                    <Option value="10">10条/页</Option>
+                    <Option value="20">20条/页</Option>
+                    </Select>
+                    </div> 
                     </div>
                 </div>
             </div></div>
