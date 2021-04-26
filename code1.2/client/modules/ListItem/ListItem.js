@@ -204,6 +204,7 @@ toindex(){
 
     //设置当前页面条数
     setPageNum(pageSize){
+      console.log(pageSize);
       this.setState({pageSize});
 
       if(this.state.isSearch)return;
@@ -588,14 +589,16 @@ toindex(){
             <div style={{width:1400, height:1600, margin:"auto"}}>
                 <Divider style={{fontSize:20,paddingTop:15, paddingBottom:15}}
                 >事项列表</Divider>
-                {/* <Divider
-                orientation="left"
-                style={{paddingTop:15, paddingBottom:15, fontSize:20}}
-                >事项列表</Divider> */}
-                <Search placeholder="请输入要搜索的事项名称"
+                <span style={{fontSize:'20px'}}>每页事项数:  </span>
+                <Select defaultValue="10" style={{width: 70 ,fontSize:'20px'}} onChange={this.setPageNum}>
+                    <Option value="5">5</Option>
+                    <Option value="10">10</Option>
+                    <Option value="20">20</Option>
+                    </Select> 
+                <Search  placeholder="请输入要搜索的事项名称"
                 size="large"
                 onSearch={this.searchItem}
-                style={{paddingBottom:15,width:'500px'}}
+                style={{paddingBottom:15,width:'500px',marginLeft:'10px'}}
                 enterButton />
                 
                 <Button type="primary" onClick={this.delSelectedItems} disabled={!hasSelected} loading={loading} style={{marginLeft: 20,height:'40px'}}>
@@ -612,13 +615,12 @@ toindex(){
                     </Select>  */}
                 <div>
                     <div >
-                  
+                    
                     <Table 
                     rowSelection={rowSelection}
                     columns={columns}
                     dataSource={this.state.data}
-                    // pagination={{itemRender:this.itemRender,pageSize: this.state.pageSize, total: this.state.total,style:{fontSize:'20px'} }}
-                    pagination={{position:['bottom','center'] }}
+                    pagination={{itemRender:this.itemRender,pageSize: this.state.pageSize, total: this.state.total,style:{fontSize:'20px'} }}
                     onChange={this.getItems}
                     /> 
                     <div style={{
@@ -628,7 +630,7 @@ toindex(){
                       position:'relative'
                     }}>
                       
-                    <Pagination
+                    {/* <Pagination
                     itemRender={this.itemRender}
                     pageSize={ this.state.pageSize}
                     total={ this.state.total}
@@ -637,9 +639,10 @@ toindex(){
                             marginTop:'10px',
                             display:'inline-block'
                           }}
+                          onChange={this.getItems}
                     > 
-                    </Pagination>
-                    <Select defaultValue="10" 
+                    </Pagination> */}
+                    {/* <Select defaultValue="10" 
                     size='small'
                     style={{ width: 100 ,fontSize:'16px',
                     marginLeft:'5px',
@@ -649,7 +652,7 @@ toindex(){
                     <Option value="5">5条/页</Option>
                     <Option value="10">10条/页</Option>
                     <Option value="20">20条/页</Option>
-                    </Select>
+                    </Select> */}
                     </div> 
                     </div>
                 </div>
