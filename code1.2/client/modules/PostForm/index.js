@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import 'antd/dist/antd.css';
 import cookie from 'react-cookies'
-import { Steps, Button, Form } from 'antd';
+import { Steps, Button, Form ,Descriptions,Dadge} from 'antd';
 import Qs from "qs"
 import Page0 from './Page0';
 import Conditions from './Conditions';
@@ -110,9 +110,17 @@ const steps = [
   { title: '申办资格审核' },
   { title: '业务咨询' },
   { title: '业务办理' },
+  {title:'最终页面'}
 ];
 
-
+// table里的东西
+const renderContent=(value,row,index){
+  const obj={
+    children:value,
+    props:{},
+  }
+  return obj;
+}
 class Form1 extends Component {
   constructor(props) {
     super(props);
@@ -159,6 +167,9 @@ class Form1 extends Component {
     this.setMoreCookie = this.setMoreCookie.bind(this);
     this.getCookie = this.getCookie.bind(this);
   }
+
+  // 暂时用不到
+  //#region 
   componentDidMount() {
     if (typeof window != "undefined" && localStorage.getItem("token") == "") {
       alert("请先登录")
@@ -356,6 +367,9 @@ class Form1 extends Component {
           return false;
         }
       };
+      return 1;
+    }
+    if(page==4){
       return 1;
     }
   }
@@ -593,7 +607,7 @@ class Form1 extends Component {
       })
   }
 
-
+//#endregion
   render() {
     const { form } = this.props;
     return (
@@ -702,7 +716,26 @@ class Form1 extends Component {
                 <Address form={form} arr={this.state.addresses}
                   setArr={this.handle_addresses.bind(this)}></Address>
               </div>
-            )}<br />
+            )}
+
+            {/*第5页*/}
+            {this.state.current === 4 && (
+              <div><center><h3>最终生成页面（请检查是否有错误）</h3></center>
+                <div style={{
+                  display: 'block',
+                  width: '100px',
+                  margin: '0 auto'
+                }}> 
+                <Service_QR_code
+                  service_QR_code={this.state.service_QR_code}
+                  get_service_QR_code={this.get_service_QR_code.bind(this)}
+                ></Service_QR_code></div><br />
+
+                <Address form={form} arr={this.state.addresses}
+                  setArr={this.handle_addresses.bind(this)}></Address>
+              </div>
+            )}
+            <br />
           </div>
 
           {/*下一步按钮 */}
