@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import 'antd/dist/antd.css';
 import cookie from 'react-cookies'
-import { Steps, Button, Form ,Descriptions,Dadge} from 'antd';
+import { Steps, Button, Form } from 'antd';
 import Qs from "qs"
 import Page0 from './Page0';
 import Conditions from './Conditions';
@@ -10,6 +10,7 @@ import Limit from './Limit'
 import Phone_number from './Phone_number'
 import PlatformAvatar from "./PlatformAvatar"
 import Service_QR_code from "./Service_QR_code"
+import RecordCheck from '../endpage/imgForCheck'
 import Address from './Address'
 import axios from 'axios';
 import * as BASE64 from '../endpage/constants';
@@ -714,23 +715,8 @@ class Form1 extends Component {
             {/*第5页*/}
             {this.state.current === 4 && (
               <div><center><h3>最终生成页面（请检查是否有错误）</h3></center>
-                <div style={{
-                  display: 'block',
-                  width: '100px',
-                  margin: '0 auto'
-                }}> 
-                <Descriptions title="最终生成页面" bordered>
-                  <Descriptions.Items label="事项名称">
-                  {this.item_name}
-                  </Descriptions.Items>
-                </Descriptions>
-                <Service_QR_code
-                  service_QR_code={this.state.service_QR_code}
-                  get_service_QR_code={this.get_service_QR_code.bind(this)}
-                ></Service_QR_code></div><br />
-
-                <Address form={form} arr={this.state.addresses}
-                  setArr={this.handle_addresses.bind(this)}></Address>
+                <RecordCheck post={this.state}>
+                </RecordCheck>
               </div>
             )}
             <br />

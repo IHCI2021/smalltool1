@@ -705,25 +705,7 @@ inputJudge(page) {
         {/*第1页*/}
        {this.state.current === 0 && (
             <div>
-              <RecordCheck 
-              post={this.state}
-                // item_name={this.state.item_name}
-                // item_code={this.state.item_code}
-                // item_content={this.state.item_content}
-                // basis={this.state.basis}
-                // arr={this.state.conditions}
-                // material={this.state.materials}
-                // legal_limit={this.state.legal_limit}
-                // promise_limit={this.state.promise_limit}
-                // consult_QR_code={this.state.consult_QR_code}
-                // phone_numbers={this.state.phone_numbers}
-                // phone_numbers_address={this.state.phone_numbers_address}
-                // service_QR_code={this.state.service_QR_code}
-                // address={this.state.addresses}
-                >
-
-                </RecordCheck>
-                {/* <Page0 form={form}
+                <Page0 form={form}
             item_name={this.state.item_name}
             item_code={this.state.item_code}
             item_content={this.state.item_content}
@@ -732,7 +714,7 @@ inputJudge(page) {
             get_item_code={this.get_item_code.bind(this)}
             get_item_content={this.get_item_content.bind(this)}
             get_basis={this.get_basis.bind(this)}
-            ></Page0> */}
+            ></Page0>
             </div>
             
           )}
@@ -796,38 +778,10 @@ inputJudge(page) {
           {/*第5页*/}
           {this.state.current === 4 && (
               <div><center><h3>最终生成页面（请检查是否有错误）</h3></center>
-                <div> 
                 <RecordCheck 
-                item_name={this.state.item_name}
-                item_code={this.state.item_code}
-                item_content={this.state.item_content}
-                basis={this.state.basis}
-                // condition={this.state.conditions}
-                // material={this.state.materials}
-                // legal_limit={this.state.legal_limit}
-                // promise_limit={this.state.promise_limit}
-                // consult_QR_code={this.state.consult_QR_code}
-                // phone_numbers={this.state.phone_numbers}
-                // phone_numbers_address={this.state.phone_numbers_address}
-                // service_QR_code={this.state.service_QR_code}
-                // address={this.state.addresses}
+              post={this.state}
                 >
-
                 </RecordCheck>
-                {/* <table border="1">
-                  <tr>
-                    <td style={{width:'200px',height:'100px'}}>事项名称</td>
-                    <td>{this.state.item_name}</td>
-                  </tr>
-                </table> */}
-                
-                <Service_QR_code
-                  service_QR_code={this.state.service_QR_code}
-                  get_service_QR_code={this.get_service_QR_code.bind(this)}
-                ></Service_QR_code></div><br />
-
-                <Address form={form} arr={this.state.addresses}
-                  setArr={this.handle_addresses.bind(this)}></Address>
               </div>
             )}
           <br/>
