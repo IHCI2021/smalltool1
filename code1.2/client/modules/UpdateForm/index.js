@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import 'antd/dist/antd.css';
 import Cookies from 'universal-cookie'
 // import {callApi_py} from '../../util/apiCaller'
-import { Steps, Button,Form} from 'antd';
+import { Steps, Button,Form,Descriptions,Badge} from 'antd';
 import qs from 'qs';
 import cookie from 'react-cookies'
 
@@ -15,9 +15,12 @@ import Phone_number from './Phone_number'
 import PlatformAvatar  from "./PlatformAvatar"
 import Service_QR_code  from "./Service_QR_code"
 import Address from './Address'
+import RecordCheck from '../endpage/imgForCheck'
 import axios from 'axios'
 import * as BASE64 from '../endpage/constants';
 
+// 样式
+//#region 
 const topLine={
 	position: 'relative',
 	height: '60px',
@@ -115,8 +118,10 @@ const steps = [
   {title: '申办资格审核'},
   {title: '业务咨询'},
   {title: '业务办理'},
+  {title:'最终生成页面'}
 ];
 
+//#endregion
 const cookies=new Cookies();
 
 class Form1 extends Component {
@@ -153,6 +158,9 @@ class Form1 extends Component {
     // this.getCookie = this.getCookie.bind(this);
     this.getItem = this.getItem.bind(this);
   }
+
+  // 不需要关注的
+  //#region 
 //页头按钮
 toindex(){
   //window.location.href = 'http://locallhost:8000/index'
@@ -282,19 +290,6 @@ toindex(){
             })
         }
         that.setState({phone_numbers_address: tmp_phone_address});
-        //console.log("state.address"+that.state.phone_numbers_address)
-        // console.log('item_name:' + that.state.item_name);
-        // console.log('item_code:' + that.state.item_code);
-        // console.log('item_content:' + that.state.item_content);
-        // console.log('basis:' + that.state.basis);
-        // console.log('conditions:' + that.state.conditions);
-        // console.log('materials:' + that.state.materials);
-        // console.log('legal_limit:' + that.state.legal_limit);
-        // console.log('promise_limit:' + that.state.promise_limit);
-        // console.log('phone_numbers:' + that.state.phone_numbers);
-        // console.log('addresses:' + that.state.addresses);
-        // console.log('service_QR_code:' + that.state.service_QR_code);
-        // console.log('consult_QR_code:' + that.state.consult_QR_code);
       })
       .catch(function (error) {
         console.log(error);
@@ -496,6 +491,9 @@ inputJudge(page) {
     };
     return 1;
   }
+  if(page==4){
+    return 1;
+  }
 }
    //下一页
    next() {
@@ -554,11 +552,6 @@ inputJudge(page) {
           tmpNum.push(this.state.phone_numbers[i].pNumber);
         }
       }
-      //console.log(tmpCon);
-      //console.log(tmpMat);
-      //console.log(tmpPho);
-      //console.log(tmpAdd);
-
 
       //判断state是否规范
       if(!this.state.item_name.match('.*[\u4e00-\u9fa5]{1,}.*')){
@@ -673,40 +666,8 @@ inputJudge(page) {
           alert('请求失败')
         })
 
-
-
-      // this.setSingleCookie('item_name', this.state.item_name, 1);
-      // this.setSingleCookie('item_code', this.state.item_code, 1);
-      // this.setSingleCookie('item_content', this.state.item_content, 1);
-      // this.setSingleCookie('basis', this.state.basis, 1);
-      // this.setMoreCookie('condition', tmpCon, 1);
-      // this.setMoreCookie('material', tmpMat, 1);
-      // this.setMoreCookie('phone_number', tmpNum, 1);
-      // this.setMoreCookie('address', tmpAdd, 1);
-
-
-      //  let headers={ 'content-type': 'application/json',
-      //    'X-CSRFToken':cookies.get('csrftoken')}
-      //    callApi_py('api/post/material_form' , 'post',body ,headers ).then(
-      //      response => {
-      //       //  console.log("-------------------------------")
-      //       //  console.log(response)
-      //        if(response.status==200)
-      //        alert("填写成功")
-      //        if(response.status==400)
-      //        alert(response)
-      //        if(response.status==500)
-      //        alert('已经存在该业务')
-      //        if(response.status==403){
-      //        alert('填写超时或错误，请点击确认返回第一页重新填写')
-      //        window.location.href = 'http://locallhost:8000:8100/test/post_material_form'
-      //        }
-      //      }
-
-      //    )
-
     }
-
+//#endregion
   render() {
     const { form } = this.props;
     return (
@@ -743,7 +704,26 @@ inputJudge(page) {
         <div className="steps-content" >
         {/*第1页*/}
        {this.state.current === 0 && (
-            <Page0 form={form}
+            <div>
+              <RecordCheck 
+              post={this.state}
+                // item_name={this.state.item_name}
+                // item_code={this.state.item_code}
+                // item_content={this.state.item_content}
+                // basis={this.state.basis}
+                // arr={this.state.conditions}
+                // material={this.state.materials}
+                // legal_limit={this.state.legal_limit}
+                // promise_limit={this.state.promise_limit}
+                // consult_QR_code={this.state.consult_QR_code}
+                // phone_numbers={this.state.phone_numbers}
+                // phone_numbers_address={this.state.phone_numbers_address}
+                // service_QR_code={this.state.service_QR_code}
+                // address={this.state.addresses}
+                >
+
+                </RecordCheck>
+                {/* <Page0 form={form}
             item_name={this.state.item_name}
             item_code={this.state.item_code}
             item_content={this.state.item_content}
@@ -752,7 +732,9 @@ inputJudge(page) {
             get_item_code={this.get_item_code.bind(this)}
             get_item_content={this.get_item_content.bind(this)}
             get_basis={this.get_basis.bind(this)}
-            ></Page0>
+            ></Page0> */}
+            </div>
+            
           )}
 
           {/*第2页*/}
@@ -809,7 +791,46 @@ inputJudge(page) {
             <Address form={form} arr={this.state.addresses}
             setArr={this.handle_addresses.bind(this)}></Address>
             </div>
-          )}<br/>
+          )}
+          
+          {/*第5页*/}
+          {this.state.current === 4 && (
+              <div><center><h3>最终生成页面（请检查是否有错误）</h3></center>
+                <div> 
+                <RecordCheck 
+                item_name={this.state.item_name}
+                item_code={this.state.item_code}
+                item_content={this.state.item_content}
+                basis={this.state.basis}
+                // condition={this.state.conditions}
+                // material={this.state.materials}
+                // legal_limit={this.state.legal_limit}
+                // promise_limit={this.state.promise_limit}
+                // consult_QR_code={this.state.consult_QR_code}
+                // phone_numbers={this.state.phone_numbers}
+                // phone_numbers_address={this.state.phone_numbers_address}
+                // service_QR_code={this.state.service_QR_code}
+                // address={this.state.addresses}
+                >
+
+                </RecordCheck>
+                {/* <table border="1">
+                  <tr>
+                    <td style={{width:'200px',height:'100px'}}>事项名称</td>
+                    <td>{this.state.item_name}</td>
+                  </tr>
+                </table> */}
+                
+                <Service_QR_code
+                  service_QR_code={this.state.service_QR_code}
+                  get_service_QR_code={this.get_service_QR_code.bind(this)}
+                ></Service_QR_code></div><br />
+
+                <Address form={form} arr={this.state.addresses}
+                  setArr={this.handle_addresses.bind(this)}></Address>
+              </div>
+            )}
+          <br/>
         </div>
 
         {/*下一步按钮 */}

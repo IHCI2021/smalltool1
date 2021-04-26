@@ -55,6 +55,7 @@ class Page0 extends Component{
   //获取cookie记录
   getCookie(name){
     var cookie = document.cookie.split("; ");
+    
     name = name + "=";
     for(var i=0; i<cookie.length; i++){
         if(cookie[i].indexOf(name) == 0){ cookie = cookie[i]; break;}
