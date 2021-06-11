@@ -155,15 +155,35 @@ export function removeAffairsByItemCodes(req,res,next){
   })
 }
 export function updateItem(req,res,next){
-
-  let {item_code,item_name,item_content,basis,conditions,materials,legal_limit,promise_limit,phone_numbers_address,
-    consult_QR_code,service_QR_code,addresses,phone_numbers,status} = req.body;
-  MaterialForm.update({"item_code":item_code},{"item_name":item_name,
-    "item_content":item_content,"basis":basis,"conditions":conditions,
-    "materials":materials,"legal_limit":legal_limit,"promise_limit":promise_limit,
-    "phone_numbers_address":phone_numbers_address,
-    "consult_QR_code_path":consult_QR_code,"service_QR_code_path":service_QR_code,
-    "addresses":addresses,"phone_numbers":phone_numbers,"update_date":Date.now(),
+  let {item_code,
+    item_name,
+    item_content,
+    basis,
+    conditions,
+    materials,
+    legal_limit,
+    phone_numbers,
+    consult_platform,
+    network_PC,
+    network_mobile,
+    service_QR_code_path,
+    self_help,
+    status} = req.body;
+  MaterialForm.update(
+    {"item_code":item_code},
+    {"item_name":item_name,
+    "item_content":item_content,
+    "basis":basis,
+    "conditions":conditions,
+    "materials":materials,
+    "legal_limit":legal_limit,
+    "phone_numbers":phone_numbers,
+    "consult_platform":consult_platform,
+    "network_PC":network_PC,
+    "network_mobile":network_mobile,
+    "service_QR_code_path":service_QR_code_path,
+    "self_help":self_help,
+    "update_date":Date.now(),
     "status":status},(err,result)=>{
     if(err){
       res.status(405);
@@ -197,18 +217,55 @@ export function getOneAffairs(req,res){
     }
   })
 }
+export function getItemCode(req,res){
+  let {item_name} = req.query;
+  MaterialForm.findOne({item_name:item_name},(err,result)=>{
+    if(err){
+      res.status(500)
+      res.json({
+        msg:JSON.stringify(err)
+      })
+    }else{
+      res.json({
+        result:result.item_code,
+        msg:'返回特定事项'
+      })
+    }
+  })
+}
 //输入表单的接口
 export function setMaterialForm(req,res){
-  let {item_name,item_code,item_content,basis,conditions,materials,legal_limit,promise_limit,phone_numbers,addresses,service_QR_code,consult_QR_code,phone_numbers_address}
+  let {item_name,
+    item_code,
+    item_content,
+    basis,
+    conditions,
+    materials,
+    legal_limit,
+    phone_numbers,
+    consult_platform,
+    network_PC, 
+    network_mobile,
+    service_QR_code_path,
+    self_help}
     = req.body;
+  console.log(req.body);
   console.log(conditions)
-  console.log(phone_numbers_address)
-  console.log(phone_numbers)
-  console.log(addresses)
+
   let doc = {
-    item_name,item_code,item_content,basis,conditions,materials,legal_limit,promise_limit,phone_numbers,addresses,phone_numbers_address,
-    consult_QR_code_path:consult_QR_code,
-    service_QR_code_path:service_QR_code,
+    item_name,
+    item_code,
+    item_content,
+    basis,
+    conditions,
+    materials,
+    legal_limit,
+    phone_numbers,
+    consult_platform,
+    network_PC,
+    network_mobile,
+    service_QR_code_path:service_QR_code_path,
+    self_help,
     create_user:req.user.admin.name,
   }
   console.log(doc)

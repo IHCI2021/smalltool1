@@ -16,7 +16,7 @@ export default class Service_QR_code extends React.Component {
     super(props);
     this.state = {
       loading: false,
-      imageUrl:this.props.service_QR_code
+      imageUrl:this.props.service_QR_code_path
     };
   }
 
@@ -40,7 +40,7 @@ export default class Service_QR_code extends React.Component {
           imageUrl: reader.result,
           loading: false,
         })
-        this.props.get_service_QR_code(this.state.imageUrl)
+        this.props.get_service_QR_code_path(this.state.imageUrl)
     }
   }
 
@@ -79,7 +79,7 @@ export default class Service_QR_code extends React.Component {
         beforeUpload={this.beforeUpload}
         onChange={this.handleChange}
       >
-        {imageUrl ? <img src={imageUrl} alt="service_QR_code" style={{ width: '100%' }} /> : uploadButton}
+        {imageUrl ? <img src={imageUrl} alt="service_QR_code_path" style={{ width: '100%' }} /> : uploadButton}
       </Upload>
     );
   }

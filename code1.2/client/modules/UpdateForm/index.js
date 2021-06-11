@@ -10,13 +10,14 @@ import cookie from 'react-cookies'
 import Page0 from './Page0';
 import Conditions from './Conditions';
 import Materials from './Materials'
-import Limit from'./Limit'
-import Phone_number from './Phone_number'
-import PlatformAvatar  from "./PlatformAvatar"
-import Service_QR_code  from "./Service_QR_code"
-import Address from './Address'
+import Limit from './Limit'
+import Page3 from './Page3'
+import Page4 from './Page4'
+
+import Service_QR_code from "./Service_QR_code"
 import RecordCheck from '../endpage/imgForCheck'
-import axios from 'axios'
+
+import axios from 'axios';
 import * as BASE64 from '../endpage/constants';
 
 // 样式
@@ -131,26 +132,27 @@ class Form1 extends Component {
       token: typeof window!=="undefined"?localStorage.getItem("token"):"",
       current: 0,
      // form:{
-        item_name:"",
-        item_code:"",
-        item_content:"",
-        basis:"",
-        conditions:[{},],
-        materials:[{},],
-        legal_limit:"",
-        promise_limit:"",
-        phone_numbers:[
-          {
-            area:'',
-            pNumber:''
-          },
-        ],
-        phone_numbers_address:[
-          {}
-        ],
-        addresses:[{},],
-        consult_QR_code:'',
-        service_QR_code:''
+      item_name: "",
+      item_code: "",
+      item_content: "",
+      basis: "",
+      conditions: [
+        {
+          names: ''
+        },
+      ],
+      materials: [
+        {
+          names: ''
+        },
+      ],
+      legal_limit: "",
+      phone_numbers: "",
+      consult_platform: "",
+      network_PC:"",
+      network_mobile:"",
+      self_help:"",
+      service_QR_code_path: ''
      // }
     };
     // this.setSingleCookie = this.setSingleCookie.bind(this);
@@ -248,136 +250,19 @@ toindex(){
         }
         that.setState({materials: materials});
 
+        that.setState({phone_numbers: result.phone_numbers});
         that.setState({legal_limit: result.legal_limit});
-        that.setState({promise_limit: result.promise_limit});
-
-        let addresses = [];
-        for(let i=0; i<result.addresses.length; i++){
-          let address = result.addresses[i];
-          // address = address.toString();
-          addresses.push({
-            names: address
-          })
-        }
-        that.setState({addresses: addresses});
-
-        that.setState({consult_QR_code: result.consult_QR_code_path});
-        that.setState({service_QR_code: result.service_QR_code_path});
-
-        let phoneNumbers = [];let pNumber_count=0;
-        for(pNumber_count; pNumber_count<result.phone_numbers.length; pNumber_count++){
-          let xl=0
-          for (xl;xl<result.phone_numbers[pNumber_count].length;xl++){
-          if(result.phone_numbers[pNumber_count][xl]=='-')    {
-            phoneNumbers.push({
-              area: result.phone_numbers[pNumber_count].substring(0,xl) ,
-              pNumber: result.phone_numbers[pNumber_count].substring(xl+1)
-            })
-              break
-            }
-        }
-      }
-        //console.log(result.phone_numbers)
-        //console.log(phoneNumbers)
-          that.setState({phone_numbers:phoneNumbers})
-          //console.log(that.state.phone_numbers)
-
-        let tmp_phone_address=[];
-        for(let i=0; i<result.phone_numbers_address.length; i++){
-            let address2=result.phone_numbers_address[i];
-            tmp_phone_address.push({
-              names:address2
-            })
-        }
-        that.setState({phone_numbers_address: tmp_phone_address});
+        that.setState({consult_platform:result.consult_platform});
+        that.setState({network_PC: result.network_PC});
+        that.setState({network_mobile:result.network_mobile});
+        that.setState({self_help:result.self_help});
+        that.setState({service_QR_code_path: result.service_QR_code_path});
       })
       .catch(function (error) {
         console.log(error);
       })
   }
 
-  //设置多条cookie记录
-  // setMoreCookie(name, value, exdays){
-  //   var list = this.getCookie(name);
-
-  //   let value_length = value.length;
-  //   if(value_length == 0)
-  //     return;
-
-  //   // console.log(value);
-  //   // console.log(value_length);
-
-  //   if(list.length != 0)
-  //     for(var index=0; index<value_length; index++){
-  //       if(list.indexOf(value[index]) == -1)
-  //         list.push(value[index]);
-  //     }
-  //   else
-  //     list = value;
-
-  //   value_length = list.length;
-  //   let change = 0;
-  //   if(value_length > 10)
-  //     change = value_length - 10;
-
-
-  //   let cvalue = '--' + list[change];
-  //   for(var index=change+1; index<value_length; index++)
-  //     cvalue = cvalue + '--' + list[index];
-
-  //   //console.log(cvalue);
-  //   var d = new Date();
-  //   d.setTime(d.getTime() + (exdays*24*60*60*1000));
-  //   var expires = "expires="+d.toGMTString();
-  //   document.cookie = name + "=" + cvalue + ";" + expires + ";path=/";
-  // }
-
-  //设置单条cookie记录
-  // setSingleCookie(name, value, exdays){
-  //   var list = this.getCookie(name);
-
-  //   if(list.indexOf(value) != -1)
-  //     return;
-
-  //   if(list.length == 10)
-  //     list.shift();
-
-  //   let cvalue = '';
-  //   if(list.length != 0)
-  //     cvalue = '--' + list[0];
-
-  //   for(var index=1; index<list.length; index++){
-  //     cvalue = cvalue + '--' + list[index];
-  //   }
-
-  //   cvalue = cvalue + '--' + value;
-  //   //console.log(cvalue);
-  //   var d = new Date();
-  //   d.setTime(d.getTime() + (exdays*24*60*60*1000));
-  //   var expires = "expires="+d.toGMTString();
-  //   document.cookie = name + "=" + cvalue + ";" + expires + ";path=/";
-  // }
-
-  //获取cookie记录
-  // getCookie(name){
-  //   var cookie = document.cookie.split("; ");
-  //   name = name + "=";
-  //   for(var i=0; i<cookie.length; i++){
-  //       if(cookie[i].indexOf(name) == 0){ cookie = cookie[i]; break;}
-  //   }
-
-  //   if(i == cookie.length)
-  //     return [];
-
-  //   cookie = cookie.split("--");
-  //   var list = [];
-
-  //   for(var i=1; i<cookie.length; i++){
-  //       if(cookie[i] != "" || cookie[i] != undefined)
-  //         list.push(cookie[i]);
-  //   }
-  //     return list;
-  // }
 
 //子组件赋值给this.state
 get_item_name(msg){
@@ -395,14 +280,23 @@ get_basis(msg){
 get_legal_limit(msg){
   this.setState({ legal_limit: msg});
 }
-get_promise_limit(msg){
-  this.setState({ promise_limit: msg});
+get_phone_numbers(msg) {
+  this.setState({ phone_numbers: msg });
 }
-get_consult_QR_code(msg){
-  this.setState({consult_QR_code:msg})
+get_consult_platform(msg) {
+  this.setState({ consult_platform: msg })
 }
-get_service_QR_code(msg){
-  this.setState({service_QR_code:msg})
+get_network_PC(msg) {
+  this.setState({ network_PC: msg })
+}
+get_network_mobile(msg) {
+  this.setState({ network_mobile: msg })
+}
+get_service_QR_code_path(msg) {
+  this.setState({ service_QR_code_path: msg })
+}
+get_self_help(msg) {
+  this.setState({ self_help: msg })
 }
 //动态数组赋值给this.state
 handle_conditions = (data) =>{
@@ -411,15 +305,7 @@ handle_conditions = (data) =>{
 handle_materials = (data) =>{
   this.setState({materials:data})
 }
-handle_phone_numbers = (data) =>{
-  this.setState({phone_numbers:data})
-}
-handle_phone_numbers_address = (data) =>{
-  this.setState({phone_numbers_address:data})
-}
-handle_addresses = (data) =>{
-  this.setState({addresses:data})
-}
+
 
 //输入检查
 inputJudge(page) {
@@ -445,11 +331,7 @@ inputJudge(page) {
 
   if (page === 1) {
     if (this.state.legal_limit ===null) {
-      alert('法定办结时限不能为空，请输入正确的法定办结时限');
-      return false;
-    }
-    else if (this.state.promise_limit ===null) {
-      alert('承诺办结时限不能为空，请输入正确的承诺办结时限');
+      alert('审核时限不能为空，请输入正确的法定办结时限');
       return false;
     }
     else for (var i = 0; i < this.state.conditions.length; i++) {
@@ -468,27 +350,11 @@ inputJudge(page) {
   }
 
   if (page === 2) {
-    for (var i = 0; i < this.state.phone_numbers_address.length; i++) {
-      if (this.state.phone_numbers_address[i].names !== undefined && !this.state.phone_numbers_address[i].names.match('.*[\u4e00-\u9fa5]{1,}.*')) {
-        alert('电话号码对应地址中必须含有汉字，请删除多余的空输入框，更正后再操作');
-        return false;
-      }
-    }
-    for (var i = 0; i < this.state.phone_numbers.length; i++) {
-        if (!this.state.phone_numbers[i].pNumber.match('^([0-9]{8}|[0-9]{11})$')) {
-          alert('电话号码必须为8位或11位，填写有误，请更正后再操作')
-          return false
-        }
-    }
+
     return 1;
   }
   if(page===3){
-    for (var i = 0; i < this.state.addresses.length; i++) {
-      if (!this.state.addresses[i].names.match('.*[\u4e00-\u9fa5]{1,}.*')) {
-        alert('办事大厅地址中必须含有汉字，请删除多余的空输入框，更正后再操作');
-        return false;
-      }
-    };
+
     return 1;
   }
   if(page==4){
@@ -530,29 +396,6 @@ inputJudge(page) {
         {tmpMat.push(this.state.materials[i].names);}
       }
 
-      for(var i=0;i<this.state.addresses.length;i++){
-        if(this.state.addresses[i].names!=='')
-        {tmpAdd.push(this.state.addresses[i].names);}
-      }
-
-      for(var i=0;i<this.state.phone_numbers_address.length;i++){
-        if(this.state.phone_numbers_address[i].names!=='')
-        {tmp_phone_numbers_address.push(this.state.phone_numbers_address[i].names);}
-      }
-      //判断电话格式并存储到tmpPho
-      for(var i=0;i<this.state.phone_numbers.length;i++){
-        if(this.state.phone_numbers[i].pNumber!==''&&this.state.phone_numbers_address[i].names!=='')
-        {
-          if(!this.state.phone_numbers[i].pNumber.match('^([0-9]{8}|[0-9]{11})$'))
-          {
-            alert('电话号码或对应地址填写有误，请更正再提交')
-            return false
-          }
-          tmpPho.push(this.state.phone_numbers[i].area+'-'+this.state.phone_numbers[i].pNumber);
-          tmpNum.push(this.state.phone_numbers[i].pNumber);
-        }
-      }
-
       //判断state是否规范
       if(!this.state.item_name.match('.*[\u4e00-\u9fa5]{1,}.*')){
         alert('事项名称中必须含有汉字，请更正后再提交');
@@ -575,29 +418,10 @@ inputJudge(page) {
       };
 
       if(this.state.legal_limit==''){
-        alert('法定办结时限不能为空，请输入正确的法定办结时限');
+        alert('审核时限不能为空，请输入正确的法定办结时限');
         return;
       }
       else this.state.legal_limit.toString();
-
-      if(this.state.promise_limit==''){
-        alert('承诺办结时限不能为空，请输入正确的承诺办结时限');
-        return;
-      }
-      else this.state.promise_limit.toString();
-
-      for(var i=0;i<tmpCon.length;i++){
-     if(!tmpCon[i].match('.*[\u4e00-\u9fa5]{1,}.*')){
-        alert('申办所需资格条件中必须含有汉字，请更正后再提交');
-        return;
-      }
-    };
-    for(var i=0;i<tmp_phone_numbers_address.length;i++){
-      if(!tmp_phone_numbers_address[i].match('.*[\u4e00-\u9fa5]{1,}.*')){
-         alert('电话号码对应地址中必须含有汉字，请更正后再提交');
-         return;
-       }
-     };
 
     for(var i=0;i<tmpMat.length;i++){
       if(!tmpMat[i].match('.*[\u4e00-\u9fa5]{1,}.*')){
@@ -614,26 +438,25 @@ inputJudge(page) {
      };
 
       let data={
-        item_name:this.state.item_name,
-        item_code:this.state.item_code,
-        item_content:this.state.item_content,
-        basis:this.state.basis,
-        conditions:tmpCon,
-        materials:tmpMat,
-        legal_limit:this.state.legal_limit,
-        promise_limit:this.state.promise_limit,
-        phone_numbers:tmpPho,
-        addresses:tmpAdd,
-        phone_numbers_address:tmp_phone_numbers_address,
-        service_QR_code:this.state.service_QR_code,
-        consult_QR_code:this.state.consult_QR_code,
+      item_name: this.state.item_name,
+      item_code: this.state.item_code,
+      item_content: this.state.item_content,
+      basis: this.state.basis,
+      conditions: tmpCon,
+      materials: tmpMat,
+      legal_limit: this.state.legal_limit,
+      phone_numbers: this.state.phone_numbers,
+      consult_platform:this.state.consult_platform,
+      network_PC:this.state.network_PC,
+      network_mobile:this.state.network_mobile,
+      service_QR_code_path: this.state.service_QR_code_path,
+      self_help:this.state.self_help,
         status: 1
       }
       let that = this;
       axios({
         method:"post",
         url:"http://localhost:8000/api/material/updateItem",
-        //url: "http://119.23.230.239:8000/api/material/material",
         data:data,
 
         headers:{
@@ -731,58 +554,53 @@ inputJudge(page) {
             setArr={this.handle_materials.bind(this)}></Materials><br/>
 
             <Limit form={form}
-            legal_limit={this.state.legal_limit}
-            promise_limit={this.state.promise_limit}
-            get_legal_limit={this.get_legal_limit.bind(this)}
-            get_promise_limit={this.get_promise_limit.bind(this)}></Limit>
+                  legal_limit={this.state.legal_limit}
+                  
+                  get_legal_limit={this.get_legal_limit.bind(this)}
+                  ></Limit>
            </div>
           )}
 
          {/*第3页*/}
          {this.state.current === 2 && (
 
-            <div><center><h3>网络咨询平台（可选填）</h3></center>
-             <div
-             style={{display: 'block',
-             width:'100px',
-             margin: '0 auto'}}> <PlatformAvatar
-             consult_QR_code={this.state.consult_QR_code}
-             get_consult_QR_code={this.get_consult_QR_code.bind(this)}
-             ></PlatformAvatar></div><br/>
-
-              <Phone_number  form={form}
-              arr={this.state.phone_numbers}
-              arr2={this.state.phone_numbers_address}
-            setArr={this.handle_phone_numbers.bind(this)}
-            setArr2={this.handle_phone_numbers_address.bind(this)}
-            ></Phone_number>
-            </div>
+            <Page3 form={form}
+              phone_numbers={this.state.phone_numbers}
+              consult_platform={this.state.consult_platform}
+              get_phone_numbers={this.get_phone_numbers.bind(this)}
+              get_consult_platform={this.get_consult_platform.bind(this)}
+              
+            ></Page3>
           )}
 
           {/*第4页*/}
           {this.state.current === 3 && (
+            <div><center><h3>二维码（可选填）</h3></center>
+               <div style={{
+                 display: 'block',
+                 width: '100px',
+                 margin: '0 auto'
+               }}> <Service_QR_code
+                 service_QR_code_path={this.state.service_QR_code_path}
+                 get_service_QR_code_path={this.get_service_QR_code_path.bind(this)}
+               ></Service_QR_code></div><br />
 
-            <div><center><h3>业务办理二维码（可选填）</h3></center>
-            <div style={{display: 'block',
-             width:'100px',
-             margin: '0 auto'}}> <Service_QR_code
-            service_QR_code={this.state.service_QR_code}
-             get_service_QR_code={this.get_service_QR_code.bind(this)}
-            ></Service_QR_code></div><br/>
-
-            <Address form={form} arr={this.state.addresses}
-            setArr={this.handle_addresses.bind(this)}></Address>
+              <Page4 form={form}
+              network_PC={this.state.network_PC}
+              network_mobile={this.state.network_mobile}
+              self_help={this.state.self_help}
+              get_self_help={this.get_self_help.bind(this)}
+              get_network_PC={this.get_network_PC.bind(this)}
+              get_network_mobile={this.get_network_mobile.bind(this)}
+              
+            ></Page4>
             </div>
           )}
           
           {/*第5页*/}
           {this.state.current === 4 && (
-              <div><center><h3>最终生成页面（请检查是否有错误）</h3></center>
-                <RecordCheck 
-              post={this.state}
-                >
+                <RecordCheck post={this.state}>
                 </RecordCheck>
-              </div>
             )}
           <br/>
         </div>

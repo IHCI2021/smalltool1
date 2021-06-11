@@ -4,8 +4,8 @@ import {Form, Input, AutoComplete,InputNumber} from 'antd';
 
 //表单样式
 const layout2={
-  labelCol: { span: 12 },
-  wrapperCol: { span: 3 },
+  labelCol: { span: 5 },
+  wrapperCol: { span: 16 },
 }
 
 
@@ -14,10 +14,8 @@ class Limit extends Component{
     super();
     this.state = {
       legal_limit: [],
-      promise_limit: [],
     };
     this.getCookie = this.getCookie.bind(this);
-    //this.setCookie = this.setCookie.bind(this);
   }
 
    //装载入记录
@@ -28,12 +26,6 @@ class Limit extends Component{
       this.setState({legal_limit: ["无历史输入记录"]})
     else
       this.setState({legal_limit: item});
-
-    item = this.getCookie('promise_limit');
-    if(item.length == 0 )
-      this.setState({promise_limit: ["无历史输入记录"]})
-    else
-      this.setState({promise_limit: item});
   }
   //获取cookie记录
   getCookie(name){
@@ -60,9 +52,7 @@ class Limit extends Component{
     input_legal_limit(value){
         this.props.get_legal_limit(value);
       }
-      input_promise_limit(value){
-        this.props.get_promise_limit(value);
-      }
+
       
     render(){
       const { getFieldDecorator } = this.props.form;
@@ -71,13 +61,13 @@ class Limit extends Component{
     <center><h3>审核时限</h3></center>
     <Form.Item
     {...layout2}
-      label="法定办结时限（最大为150个工作日）"
+      label="审核时限"
       rules={[{ required: true}]}>
       {getFieldDecorator('legal_limit',{ 
          initialValue:this.props.legal_limit,
          rules:[
            {required:true,
-           message:'请输入法定办结时限'},
+           message:'请输入审核时限'},
          ]
        })
        (<AutoComplete 
@@ -87,35 +77,8 @@ class Limit extends Component{
         >
           <Input  type="string" />
         </AutoComplete>)  
-     /*  (<Input type="string"  
-          onChange={this.input_legal_limit.bind(this)}/>) 
-      
-         (<InputNumber min={1} max={150}
-            onChange={this.input_legal_limit.bind(this)} />)*/
       }
     </Form.Item>,
-    <Form.Item
-    {...layout2}
-      label="承诺办结时限（最大为150个工作日）"
-      rules={[{ required: true}]}>
-      {getFieldDecorator('promise_limit',{ 
-         initialValue:this.props.promise_limit,
-         rules:[
-           {required:true,
-           message:'请输入承诺办结时限'},
-         ]
-       })
-       (<AutoComplete 
-        dataSource={this.state.promise_limit}
-        onChange={this.input_promise_limit.bind(this)}
-        //onSelect={(value)=>{console.log(value)}}
-        >
-          <Input  type="string" />
-        </AutoComplete>)  
-        // (<Input type="string" 
-        // onChange={this.input_promise_limit.bind(this)}/>) 
-      }
-    </Form.Item>,   
     </Form>
         )
     }

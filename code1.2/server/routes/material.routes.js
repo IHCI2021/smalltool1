@@ -16,4 +16,6 @@ router.route('/updateItem').post(MaterialController.updateItem);
 router.route('/getItemByCode').get(MaterialController.getOneAffairs);
 
 router.route('/material').post(MaterialController.setMaterialForm);
+
+router.route('/getItemCodeByName').get(MaterialController.getItemCode);
 export default router;

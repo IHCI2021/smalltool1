@@ -1,8 +1,9 @@
 import React, {Component} from 'react';
-import { Divider, Input, Select, Table, Button,Pagination } from 'antd';
+import { Divider, Input, Select, Table, Button } from 'antd';
 import axios from 'axios';
 import qs from 'qs';
 import * as BASE64 from '../endpage/constants';
+import * as XLSX from 'xlsx';
 const {Search} = Input;
 const {Option} = Select;
 
@@ -147,6 +148,105 @@ toindex(){
       return <a>&gt;</a>;
     }
     return originalElement;
+  }
+  onImportExcel(file) {
+    // 获取上传的文件对象
+    const { files } = file.target;
+    // 通过FileReader对象读取文件
+    const fileReader = new FileReader();
+    fileReader.onload = async (event) => {
+      try {
+        const { result } = event.target;
+        // 以二进制流方式读取得到整份excel表格对象
+        const workbook = XLSX.read(result, { type: "binary" });
+        let data = []; // 存储获取到的数据
+        let data1 = {}; //转为上传的数据
+        console.log("表的所有sheet",workbook.Sheets);
+        // 遍历每张工作表进行读取（这里默认只读取第一张表）
+        for (const sheet in workbook.Sheets) {
+          if (workbook.Sheets.hasOwnProperty(sheet)) {
+            console.log("sheet的名字",sheet);
+            // 利用 sheet_to_json 方法将 excel 转成 json 数据
+            // data = data.concat(XLSX.utils.sheet_to_json(workbook.Sheets[sheet]));
+            data = XLSX.utils.sheet_to_json(workbook.Sheets[sheet]);
+            console.log(data);
+            data1={
+              item_name:Object.values(data[0])[2],
+              item_code: Object.values(data[1])[2],
+              item_content :Object.values(data[2])[2],
+              basis:Object.values(data[3])[2],
+              conditions:[Object.values(data[4])[2]],
+              materials: [Object.values(data[5])[2],],
+              //审核时限
+              legal_limit: Object.values(data[6])[2],
+              // 咨询电话
+             phone_numbers: Object.values(data[7])[2],
+              // 咨询平台
+              consult_platform: Object.values(data[8])[2],
+              // 网办PC端
+              network_PC: Object.values(data[9])[2],
+              // 网办移动端
+              network_mobile: Object.values(data[10])[2],
+              // 自助终端
+              self_help: Object.values(data[11])[2],
+              // 二维码
+              service_QR_code_path: Object.values(data[12])[2],
+            }
+            console.log(data1);
+            let usertoken = "";
+            if (typeof window != "undefined") {
+              usertoken = localStorage.getItem("token");
+            }
+
+            await axios({
+              method: "post",
+              url: "http://localhost:8000/api/material/material",
+              //url: "http://119.23.230.239:8000/api/material/material",
+              data: data1,
+              /*transformRequest: [function (data) {
+                // 对 data 进行任意转换处理
+                return Qs.stringify(data)
+              }],*/
+              headers: {
+                //'Content-Type': 'application/json',
+                "Content-Type": "application/json;charset=utf-8",
+                Authorization: usertoken,
+              },
+            })
+              .then((res) => {
+                if (res.status == 200) {
+                  
+                }
+              })
+              .catch((err) => {
+                if (err.response.status == 401) {
+                  alert(err.response.data.msg);
+                  localStorage.setItem("token", "");
+                  localStorage.setItem("username", "");
+                  //window.location.href = 'http://locallhost:8000/login'
+                  this.props.router.push("/login");
+                }
+                if (err.response.status == 403) {
+                  alert(err.response.data.msg);
+                  //window.location.href = 'http://locallhost:8000/create_material_form'
+                  this.props.router.push("/create_material_form");
+                }
+                if (err.response.status == 500) ;
+                if (err.response.status == 400) alert("请求失败");
+              });
+            console.log(data1);
+            console.log(data);
+            // break; // 如果只取第一张表，就取消注释这行
+          }
+        }
+      } catch (e) {
+        // 这里可以抛出文件类型错误不正确的相关提示
+        console.log("文件类型不正确");
+        return;
+      }
+    };
+    // 以二进制方式打开文件
+    fileReader.readAsBinaryString(files[0]);
   }
 
     //转换时间
@@ -417,23 +517,6 @@ toindex(){
       this.setState({isSearch: true});
     }
 
-    // getItem = async() => {
-    //   let data;
-    //   await axios.get('http://locallhost:8000/api/material/getItemByCode', {
-    //       headers: {
-    //         'Authorization': that.state.token
-    //                 },
-    //       params: {
-    //         item_code: 'test361',
-    //         }
-    //     })
-    //     .then(function (response) {
-    //       data = response.data.result;
-    //     })
-    //     .catch(function (error) {});
-    //     console.log(data);
-    //     return data;
-    // }
 
     onSelectChange = selectedRowKeys => {
         // console.log('selectedRowKeys changed: ', selectedRowKeys);
@@ -576,6 +659,7 @@ toindex(){
 
 					<div style={modify}
 					onClick={() => this.toUpdatePassword()}>修改密码</div>
+					{/* <input type='file' accept='.xlsx, .xls' onChange={this.onImportExcel} /> */}
 
 				<div style={loginTop}
 				onClick={() => this.logout()}
@@ -607,12 +691,7 @@ toindex(){
                 <Button type="primary" style={{marginLeft: 20 ,height:'40px'}} onClick={this.routerCreate}>
                       创建新事项
                     </Button>
-                    {/* <span style={{marginLeft:'10px',fontSize:'20px'}}>当前每页显示事项数:  </span>
-                <Select defaultValue="10" style={{ width: 120 ,fontSize:'20px'}} onChange={this.setPageNum}>
-                    <Option value="5">5</Option>
-                    <Option value="10">10</Option>
-                    <Option value="20">20</Option>
-                    </Select>  */}
+
                 <div>
                     <div >
                     
@@ -629,30 +708,7 @@ toindex(){
                       padding:'0',
                       position:'relative'
                     }}>
-                      
-                    {/* <Pagination
-                    itemRender={this.itemRender}
-                    pageSize={ this.state.pageSize}
-                    total={ this.state.total}
-                    style={{
-                            fontSize:'20px',
-                            marginTop:'10px',
-                            display:'inline-block'
-                          }}
-                          onChange={this.getItems}
-                    > 
-                    </Pagination> */}
-                    {/* <Select defaultValue="10" 
-                    size='small'
-                    style={{ width: 100 ,fontSize:'16px',
-                    marginLeft:'5px',
-                    display:'inline-block',
-                  }} 
-                    onChange={this.setPageNum}>
-                    <Option value="5">5条/页</Option>
-                    <Option value="10">10条/页</Option>
-                    <Option value="20">20条/页</Option>
-                    </Select> */}
+
                     </div> 
                     </div>
                 </div>

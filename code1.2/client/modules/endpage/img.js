@@ -260,7 +260,6 @@ class RecordTest extends React.Component {
         // 处理A列
         sheet.mergeCells('A'+merge_end_A,'A'+i);
         merge_end_A=i+1;
-        
         sheet.getRow(i+1).height=countNumber(sheet.getCell('C'+(i+1)).value.length);
         totalLength=sheet.getRow(i+1).height;
         Page=i;
@@ -375,7 +374,7 @@ class RecordTest extends React.Component {
     merge_end=i;
 
     sheet.getCell('B'+i).value="审核时限";
-    sheet.getCell('C'+i).value="法定办结时限:"+excelData.legal_limit+"  "+"承诺办结时限:"+excelData.promise_limit;
+    sheet.getCell('C'+i).value=excelData.legal_limit;
     sheet.getRow(i).height=countNumber(sheet.getCell('C'+i).value.length);
     totalLengthLast=totalLength;
     totalLength+=sheet.getRow(i).height;
@@ -385,66 +384,41 @@ class RecordTest extends React.Component {
     sheet.getCell('A'+merge_end_A).value="申办资格审核";
     merge_end_A=i;
     merge_end=i;
-    // #endregion
+  //   // #endregion
 
 
     // --------业务咨询part--------
 
     //#region 
-    let phone_length=excelData.phone_numbers_address.length;
     sheet.getCell('A'+i).value="业务咨询"
-    sheet.getCell('B'+i).value="网络咨询平台";
-    const img1=excelData.consult_QR_code_path;
-    if(img1==''){
-      sheet.getCell('C'+i).value='暂无'
-      sheet.getRow(i).height=20;
-      totalLengthLast=totalLength;
-      totalLength+=sheet.getRow(i).height;
-      newPage();
-    }else{
-      const image1=workbook.addImage({
-        base64:img1,
-        extension:'jpeg'
-      })
-      sheet.getRow(i).height=100;
-      // 先判断能不能放入100
-      totalLengthLast=totalLength;
-      totalLength+=100;
-      flag=true;
-      newPage();  
-      sheet.addImage(image1,{
-        tl:{col:2.9,row:i-0.5},
-        ext:{width:100,height:100},
-        editAs: 'oneCell'
-      });
-    }
-    
-    i++;
-    merge_end=i;
     sheet.getCell('B'+i).value="咨询电话";
-    for(let m=0;m<phone_length;i++,m++){
-      sheet.getCell('C'+i).value='地址'+(m+1)+': '+excelData.phone_numbers_address[m]+"  电话" +(m+1)+': '+excelData.phone_numbers[m];
-      sheet.getRow(i).height=countNumber(sheet.getCell('C'+i).value.length);
-      totalLengthLast=totalLength;
-      totalLength+=sheet.getRow(i).height;
-      newPage();
-    }
+    sheet.getCell('C'+i).value=excelData.phone_numbers;
+    sheet.getRow(i).height=countNumber(sheet.getCell('C'+i).value.length);
+    totalLengthLast=totalLength;
+    totalLength+=sheet.getRow(i).height;
+    newPage();
+    i++;
+    sheet.getCell('B'+i).value='咨询平台';
+    sheet.getCell('C'+i).value=excelData.consult_platform;
+    sheet.getRow(i).height=countNumber(sheet.getCell('C'+i).value.length);
+    totalLengthLast=totalLength;
+    totalLength+=sheet.getRow(i).height;
+    newPage();
     sheet.mergeCells('B'+merge_end,'B'+(i-1));
-    sheet.mergeCells('A'+merge_end_A,'A'+(i-1));
+    sheet.mergeCells('A'+merge_end_A,'A'+i);
     sheet.getCell('A'+merge_end_A).value="业务咨询";
+    i++;
     merge_end_A=i;
     merge_end=i;
   //#endregion
 
   // ----------业务办理part---------
   //#region 
-    let address_length=excelData.addresses.length;
-  //   // sheet.mergeCells('A'+(phone_end+1),'A'+address_end);
     sheet.getCell('A'+i).value="业务办理"
-    sheet.getCell('B'+i).value="业务办理二维码";
+    sheet.getCell('B'+i).value="二维码";
     const img_service=excelData.service_QR_code_path;
 
-    if(img_service==''){
+    if(img_service.length<100){
       sheet.getCell('C'+i).value='暂无'
       sheet.getRow(i).height=20;
       totalLengthLast=totalLength;
@@ -468,19 +442,33 @@ class RecordTest extends React.Component {
     }
     i++;
     merge_end=i;
-    sheet.getCell('B'+i).value="办事大厅地址";
+    sheet.getCell('B'+i).value="网办PC端";
 
-    for(let m=0;m<address_length;i++,m++){
-      sheet.getCell('C'+i).value='地址'+(m+1)+': '+excelData.addresses[m];
-      sheet.getRow(i).height=countNumber(excelData.addresses[m].length);
+      sheet.getCell('C'+i).value=excelData.network_PC;
+      sheet.getRow(i).height=countNumber(excelData.network_PC.length);
       totalLengthLast=totalLength;
       totalLength+=sheet.getRow(i).height;
       newPage();
-    }
-    sheet.mergeCells('B'+merge_end,'B'+(i-1));
+      i++;
+    sheet.getCell('B'+i).value="网办移动端";
+
+      sheet.getCell('C'+i).value=excelData.network_mobile;
+      sheet.getRow(i).height=countNumber(excelData.network_mobile.length);
+      totalLengthLast=totalLength;
+      totalLength+=sheet.getRow(i).height;
+      newPage();
+      i++;
+    sheet.getCell('B'+i).value="自助终端";
+
+      sheet.getCell('C'+i).value=excelData.self_help;
+      sheet.getRow(i).height=countNumber(excelData.self_help.length);
+      totalLengthLast=totalLength;
+      totalLength+=sheet.getRow(i).height;
+      console.log(totalLength,totalLengthLast);
+      newPage();
+      i++;
     sheet.mergeCells('A'+merge_end_A,'A'+(i-1));
     //#endregion
-
     // 最后一页
     if(totalLength<pageLength){
       console.log(pageLength,totalLength);
@@ -492,6 +480,10 @@ class RecordTest extends React.Component {
       }else{
         sheet.getRow(i).height=b;
       }
+      image10=workbook.addImage({
+        base64:img_bottom,
+        extension:'jpeg'
+      })   
       sheet.addImage(image10,{
         tl:{col:0,row:Page},
         // br:{col:3,row:i},
@@ -543,9 +535,7 @@ class RecordTest extends React.Component {
   render() {
     let cnarray = this.state.posts.conditions;
     let maarray = this.state.posts.materials;
-    let phonearray = this.state.posts.phone_numbers;
-    let phone_address_array = this.state.posts.phone_numbers_address; //新加电话地址
-    let addarray = this.state.posts.addresses;
+
     const qrcode1 =
       "data:image/jpeg;base64," + this.state.posts.consult_QR_code_path;
     const qrcode2 =
@@ -917,9 +907,7 @@ class RecordTest extends React.Component {
                   }}
                 >
                   {" "}
-                  法定办结时限：{this.state.posts.legal_limit}
-                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;承诺办结时限：
-                  {this.state.posts.legal_limit}
+                  审核时限：{this.state.posts.legal_limit}
                 </div>
               </div>
             </div>
@@ -945,7 +933,7 @@ class RecordTest extends React.Component {
               }}
             >
               <div style={img2Style}>
-                <div style={textStyle}>业务咨询</div>
+                <div style={textStyle}>咨询</div>
               </div>
             </div>
             <div
@@ -960,78 +948,58 @@ class RecordTest extends React.Component {
             >
               <div
                 style={{
-                  fontWeight: "900",
-                  color: "#038DCB",
-                  fontSize: "20px",
-                  lineHeight: "40px",
+                  fontSize: "18px",
+                  lineHeight: "50px",
                   border: "#038DCB solid 2px",
                   borderLeftWidth: "8px",
                   width: "370px",
                   textIndent: "2rem",
                 }}
               >
-                网络咨询平台
-              </div>
-              <div
-                style={{
-                  fontWeight: "900",
-                  color: "#038DCB",
-                  fontSize: "20px",
-                  lineHeight: "40px",
-                  border: "#038DCB solid 2px",
-                  borderLeftWidth: "8px",
-                  width: "660px",
-                  textIndent: "2rem",
-                }}
-              >
-                {" "}
                 咨询电话
               </div>
-
               <div
                 style={{
-                  border: " #038DCB solid 2px",
-                  borderLeftWidth: "8px",
-                  width: "370px",
-                  height: "300px",
-                }}
-              >
-                <img
-                  src={
-                    this.state.posts.consult_QR_code_path
-                  }
-                  style={{
-                    maxWidth: "100%",
-                    maxHeight: "100%",
-                    display: "block",
-                    margin: "auto",
-                  }}
-                />
-              </div>
-
-              <div
-                style={{
+                  lineHeight: "50px",
                   fontSize: "18px",
 
                   border: "#038DCB solid 2px",
                   borderLeftWidth: "8px",
                   width: "660px",
-                  height: "300px",
+                  textIndent: "2rem",
                 }}
               >
-                {phone_address_array &&
-                  phone_address_array.map((item, index) => (
-                    <div
-                      style={{
-                        fontSize: "20px",
-                        textIndent: "2rem",
-                        display: "inline-block",
-                      }}
-                    >
-                      {index + 1 + ". 地址:" + item + ' 电话:'+phonearray[index]}
-                    </div>
-                  ))}
+                {this.state.posts.phone_numbers}
               </div>
+              
+              <div
+                style={{
+                  fontSize: "18px",
+                  lineHeight: "50px",
+                  border: "#038DCB solid 2px",
+                  borderLeftWidth: "8px",
+                  width: "370px",
+                  textIndent: "2rem",
+                }}
+              >
+                咨询平台
+              </div>
+              <div
+                style={{
+                  lineHeight: "50px",
+                  fontSize: "18px",
+
+                  border: "#038DCB solid 2px",
+                  borderLeftWidth: "8px",
+                  width: "660px",
+                  textIndent: "2rem",
+                }}
+              >
+                {this.state.posts.consult_platform}
+              </div>
+              
+
+              
             </div>
           </div>
 
@@ -1071,39 +1039,23 @@ class RecordTest extends React.Component {
                 flexWrap: "wrap",
               }}
             >
-              <div
+                <div
                 style={{
-                  fontWeight: "900",
-                  color: "#038DCB",
-                  fontSize: "20px",
-                  lineHeight: "40px",
-                  border: "#AAAAAA solid 2px",
+                  fontSize: "18px",
+                  lineHeight: "50px",
+                  border: "#038DCB solid 2px",
                   borderLeftWidth: "8px",
                   width: "370px",
                   textIndent: "2rem",
                 }}
               >
-                业务办理二维码
+                二维码
               </div>
               <div
                 style={{
-                  fontWeight: "900",
-                  color: "#038DCB",
-                  fontSize: "20px",
-                  lineHeight: "40px",
-                  border: "#AAAAAA solid 2px",
+                  border: "#038DCB solid 2px",
                   borderLeftWidth: "8px",
                   width: "660px",
-                  textIndent: "2rem",
-                }}
-              >
-                办事大厅地址
-              </div>
-              <div
-                style={{
-                  border: "#AAAAAA solid 2px",
-                  borderLeftWidth: "8px",
-                  width: "370px",
                   height: "300px",
                 }}
               >
@@ -1119,30 +1071,79 @@ class RecordTest extends React.Component {
                   }}
                 />
               </div>
-
               <div
                 style={{
-                  border: "#AAAAAA solid 2px",
+                  fontSize: "18px",
+                  border: "#038DCB solid 2px",
                   borderLeftWidth: "8px",
-                  width: "660px",
-                  height: "300px",
-                  fontSize: "16px",
-                  lineHeight: "32px",
+                  width: "370px",
                   textIndent: "2rem",
                 }}
               >
-                {addarray &&
-                  addarray.map((item, index) => (
-                    <li
-                      style={{
-                        fontSize: "20px",
-                        listStyle: "none",
-                      }}
-                    >
-                      {index + 1 + "." + item}
-                    </li>
-                  ))}
+                网办PC端
               </div>
+              <div
+                style={{
+                  lineHeight: "50px",
+                  fontSize: "18px",
+
+                  border: "#038DCB solid 2px",
+                  borderLeftWidth: "8px",
+                  width: "660px",
+                  textIndent: "2rem",
+                }}
+              >
+                {this.state.posts.network_PC}
+              </div>
+              <div
+                style={{
+                  fontSize: "18px",
+                  border: "#038DCB solid 2px",
+                  borderLeftWidth: "8px",
+                  width: "370px",
+                  textIndent: "2rem",
+                }}
+              >
+                网办移动端
+              </div>
+              <div
+                style={{
+                  lineHeight: "50px",
+                  fontSize: "18px",
+
+                  border: "#038DCB solid 2px",
+                  borderLeftWidth: "8px",
+                  width: "660px",
+                  textIndent: "2rem",
+                }}
+              >
+                {this.state.posts.network_mobile}
+              </div>
+              <div
+                style={{
+                  fontSize: "18px",
+                  border: "#038DCB solid 2px",
+                  borderLeftWidth: "8px",
+                  width: "370px",
+                  textIndent: "2rem",
+                }}
+              >
+                自助终端
+              </div>
+              <div
+                style={{
+                  lineHeight: "50px",
+                  fontSize: "18px",
+
+                  border: "#038DCB solid 2px",
+                  borderLeftWidth: "8px",
+                  width: "660px",
+                  textIndent: "2rem",
+                }}
+              >
+                {this.state.posts.self_help}
+              </div>
+              
             </div>
           </div>
 

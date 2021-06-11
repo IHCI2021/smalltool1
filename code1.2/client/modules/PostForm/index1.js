@@ -7,12 +7,11 @@ import Page0 from './Page0';
 import Conditions from './Conditions';
 import Materials from './Materials'
 import Limit from './Limit'
-import Page3 from './Page3'
-import Page4 from './Page4'
-
+import Phone_number from './Phone_number'
+import PlatformAvatar from "./PlatformAvatar"
 import Service_QR_code from "./Service_QR_code"
 import RecordCheck from '../endpage/imgForCheck'
-
+import Address from './Address'
 import axios from 'axios';
 import * as BASE64 from '../endpage/constants';
 
@@ -137,12 +136,25 @@ class Form1 extends Component {
         },
       ],
       legal_limit: "",
-      phone_numbers: "",
-      consult_platform: "",
-      network_PC:"",
-      network_mobile:"",
-      self_help:"",
-      service_QR_code_path: ''
+      promise_limit: "",
+      phone_numbers: [
+        {
+          area: '020',
+          pNumber: ''
+        },
+      ],
+      phone_numbers_address: [
+        {
+          names: ''
+        }
+      ],
+      addresses: [
+        {
+          names: ''
+        },
+      ],
+      consult_QR_code: '',
+      service_QR_code: ''
       // }
     };
     this.setSingleCookie = this.setSingleCookie.bind(this);
@@ -255,23 +267,14 @@ class Form1 extends Component {
   get_legal_limit(msg) {
     this.setState({ legal_limit: msg });
   }
-  get_phone_numbers(msg) {
-    this.setState({ phone_numbers: msg });
+  get_promise_limit(msg) {
+    this.setState({ promise_limit: msg });
   }
-  get_consult_platform(msg) {
-    this.setState({ consult_platform: msg })
+  get_consult_QR_code(msg) {
+    this.setState({ consult_QR_code: msg })
   }
-  get_network_PC(msg) {
-    this.setState({ network_PC: msg })
-  }
-  get_network_mobile(msg) {
-    this.setState({ network_mobile: msg })
-  }
-  get_service_QR_code_path(msg) {
-    this.setState({ service_QR_code_path: msg })
-  }
-  get_self_help(msg) {
-    this.setState({ self_help: msg })
+  get_service_QR_code(msg) {
+    this.setState({ service_QR_code: msg })
   }
   //动态数组赋值给this.state
   handle_conditions = (data) => {
@@ -280,7 +283,15 @@ class Form1 extends Component {
   handle_materials = (data) => {
     this.setState({ materials: data })
   }
-
+  handle_phone_numbers = (data) => {
+    this.setState({ phone_numbers: data })
+  }
+  handle_addresses = (data) => {
+    this.setState({ addresses: data })
+  }
+  handle_phone_numbers_address = (data) => {
+    this.setState({ phone_numbers_address: data })
+  }
 
   //输入检查
   inputJudge(page) {
@@ -306,7 +317,11 @@ class Form1 extends Component {
 
     if (page === 1) {
       if (this.state.legal_limit ===null) {
-        alert('审核时限不能为空，请输入正确的法定办结时限');
+        alert('法定办结时限不能为空，请输入正确的法定办结时限');
+        return false;
+      }
+      else if (this.state.promise_limit ===null) {
+        alert('承诺办结时限不能为空，请输入正确的承诺办结时限');
         return false;
       }
       else for (var i = 0; i < this.state.conditions.length; i++) {
@@ -325,11 +340,27 @@ class Form1 extends Component {
     }
 
     if (page === 2) {
-      
+      for (var i = 0; i < this.state.phone_numbers_address.length; i++) {
+        if (this.state.phone_numbers_address[i].names !== undefined && !this.state.phone_numbers_address[i].names.match('.*[\u4e00-\u9fa5]{1,}.*')) {
+          alert('电话号码对应地址中必须含有汉字，请删除多余的空输入框，更正后再操作');
+          return false;
+        }
+      }
+      for (var i = 0; i < this.state.phone_numbers.length; i++) {
+          if (!this.state.phone_numbers[i].pNumber.match('^([0-9]{8}|[0-9]{11})$')) {
+            alert('电话号码必须为8位或11位，填写有误，请更正后再操作')
+            return false
+          }
+      }
       return 1;
     }
     if(page===3){
-      
+      for (var i = 0; i < this.state.addresses.length; i++) {
+        if (!this.state.addresses[i].names.match('.*[\u4e00-\u9fa5]{1,}.*')) {
+          alert('办事大厅地址中必须含有汉字，请删除多余的空输入框，更正后再操作');
+          return false;
+        }
+      };
       return 1;
     }
     if(page==4){
@@ -408,6 +439,30 @@ class Form1 extends Component {
       if (this.state.materials[i].names !== '') { tmpMat.push(this.state.materials[i].names); }
     }
 
+    for (var i = 0; i < this.state.addresses.length; i++) {
+      if (this.state.addresses[i].names !== '') { tmpAdd.push(this.state.addresses[i].names); }
+    }
+    for (var i = 0; i < this.state.phone_numbers_address.length; i++) {
+      if (this.state.phone_numbers_address[i].names !== '') { tmp_phone_numbers_address.push(this.state.phone_numbers_address[i].names); }
+    }
+    //判断电话格式并存储到tmpPho
+    for (var i = 0; i < this.state.phone_numbers.length; i++) {
+      if (this.state.phone_numbers[i].pNumber !== '' && this.state.phone_numbers_address[i].names !== '') {
+        if (!this.state.phone_numbers[i].pNumber.match('^([0-9]{8}|[0-9]{11})$')) {
+          alert('电话号码或对应地址填写有误，请更正再提交')
+          return false
+        }
+        tmpPho.push(this.state.phone_numbers[i].area + '-' + this.state.phone_numbers[i].pNumber);
+        tmpNum.push(this.state.phone_numbers[i].pNumber);
+      }
+    }
+    //console.log(tmpCon);
+    //console.log(tmpMat);
+    //console.log('phone_number'+tmpPho);
+
+    //console.log(tmpAdd);
+
+
     //判断state是否规范
     if (!this.state.item_name.match('.*[\u4e00-\u9fa5]{1,}.*')) {
       alert('事项名称中必须含有汉字，请更正后再提交');
@@ -435,6 +490,11 @@ class Form1 extends Component {
     }
     else this.state.legal_limit.toString();
 
+    if (this.state.promise_limit == '') {
+      alert('承诺办结时限不能为空，请输入正确的承诺办结时限');
+      return;
+    }
+    else this.state.promise_limit.toString();
 
     for (var i = 0; i < tmpCon.length; i++) {
       if (!tmpCon[i].match('.*[\u4e00-\u9fa5]{1,}.*')) {
@@ -450,6 +510,18 @@ class Form1 extends Component {
         return;
       }
     };
+    for (var i = 0; i < tmp_phone_numbers_address.length; i++) {
+      if (!tmp_phone_numbers_address[i].match('.*[\u4e00-\u9fa5]{1,}.*')) {
+        alert('电话号码对应地址中必须含有汉字，请更正后再提交');
+        return;
+      }
+    };
+    for (var i = 0; i < tmpAdd.length; i++) {
+      if (!tmpAdd[i].match('.*[\u4e00-\u9fa5]{1,}.*')) {
+        alert('办事大厅地址中必须含有汉字，请更正后再提交');
+        return;
+      }
+    };
 
     let data = {
       item_name: this.state.item_name,
@@ -459,24 +531,31 @@ class Form1 extends Component {
       conditions: tmpCon,
       materials: tmpMat,
       legal_limit: this.state.legal_limit,
-      phone_numbers: this.state.phone_numbers,
-      consult_platform:this.state.consult_platform,
-      network_PC:this.state.network_PC,
-      network_mobile:this.state.network_mobile,
-      service_QR_code_path: this.state.service_QR_code_path,
-      self_help:this.state.self_help
+      promise_limit: this.state.promise_limit,
+      phone_numbers: tmpPho,
+      addresses: tmpAdd,
+      phone_numbers_address: tmp_phone_numbers_address,
+      service_QR_code: this.state.service_QR_code,
+      consult_QR_code: this.state.consult_QR_code
     }
-
+    // console.log(data.phone_numbers)
+    //console.log(data.addresses)
+    // console.log(data.phone_numbers_address)
+    // console.log(data.conditions)
+    // console.log(data.materials)
     this.setSingleCookie('item_name', this.state.item_name, 1);
     this.setSingleCookie('item_code', this.state.item_code, 1);
     this.setSingleCookie('item_content', this.state.item_content, 1);
     this.setSingleCookie('legal_limit', this.state.legal_limit, 1);
-    this.setSingleCookie('phone_numbers', this.state.phone_numbers, 1);
-    this.setSingleCookie('consult_platform', this.state.consult_platform, 1);
-    this.setSingleCookie('network_PC', this.state.network_PC, 1);
-    this.setSingleCookie('network_mobile', this.state.network_mobile, 1);
-    this.setSingleCookie('service_QR_code_path', this.state.service_QR_code_path, 1);
-    this.setSingleCookie('self_help', this.state.self_help, 1);
+    this.setSingleCookie('promise_limit', this.state.promise_limit, 1);
+    this.setSingleCookie('basis', this.state.basis, 1);
+    this.setMoreCookie('condition', tmpCon, 1);
+    this.setMoreCookie('material', tmpMat, 1);
+    this.setMoreCookie('phone_number', tmpNum, 1);
+    this.setMoreCookie('address', tmpAdd, 1);
+    this.setMoreCookie('phone_numbers_address', tmp_phone_numbers_address, 1);
+
+    //let usertoken=cookie.load('token');
     let usertoken = ""
     if (typeof window != "undefined") {
       usertoken = localStorage.getItem("token")
@@ -484,8 +563,14 @@ class Form1 extends Component {
     axios({
       method: 'post',
       url: "http://localhost:8000/api/material/material",
+      //url: "http://119.23.230.239:8000/api/material/material",
       data: data,
+      /*transformRequest: [function (data) {
+        // 对 data 进行任意转换处理
+        return Qs.stringify(data)
+      }],*/
       headers: {
+        //'Content-Type': 'application/json',
         'Content-Type': 'application/json;charset=utf-8',
         'Authorization': usertoken
       },
@@ -557,15 +642,15 @@ class Form1 extends Component {
             {/*第1页*/}
             {this.state.current === 0 && (
               <Page0 form={form}
-              item_name={this.state.item_name}
-              item_code={this.state.item_code}
-              item_content={this.state.item_content}
-              basis={this.state.basis}
-              get_item_name={this.get_item_name.bind(this)}
-              get_item_code={this.get_item_code.bind(this)}
-              get_item_content={this.get_item_content.bind(this)}
-              get_basis={this.get_basis.bind(this)}
-            ></Page0>
+                item_name={this.state.item_name}
+                item_code={this.state.item_code}
+                item_content={this.state.item_content}
+                basis={this.state.basis}
+                get_item_name={this.get_item_name.bind(this)}
+                get_item_code={this.get_item_code.bind(this)}
+                get_item_content={this.get_item_content.bind(this)}
+                get_basis={this.get_basis.bind(this)}
+              ></Page0>
             )}
 
             {/*第2页*/}
@@ -581,48 +666,50 @@ class Form1 extends Component {
 
                 <Limit form={form}
                   legal_limit={this.state.legal_limit}
-                  
+                  promise_limit={this.state.promise_limit}
                   get_legal_limit={this.get_legal_limit.bind(this)}
-                  ></Limit>
+                  get_promise_limit={this.get_promise_limit.bind(this)}></Limit>
               </div>
             )}
 
             {/*第3页*/}
-            
             {this.state.current === 2 && (
-              
-            <Page3 form={form}
-              phone_numbers={this.state.phone_numbers}
-              consult_platform={this.state.consult_platform}
-              get_phone_numbers={this.get_phone_numbers.bind(this)}
-              get_consult_platform={this.get_consult_platform.bind(this)}
-              
-            ></Page3>
-              
+
+              <div><center><h3>网络咨询平台（可选填）</h3></center>
+                <div
+                  style={{
+                    display: 'block',
+                    width: '100px',
+                    margin: '0 auto'
+                  }}> <PlatformAvatar
+                    consult_QR_code={this.state.consult_QR_code}
+                    get_consult_QR_code={this.get_consult_QR_code.bind(this)}
+                  ></PlatformAvatar></div><br />
+
+                <Phone_number form={form}
+                  arr={this.state.phone_numbers}
+                  arr2={this.state.phone_numbers_address}
+                  setArr={this.handle_phone_numbers.bind(this)}
+                  setArr2={this.handle_phone_numbers_address.bind(this)}
+                ></Phone_number>
+              </div>
             )}
 
             {/*第4页*/}
             {this.state.current === 3 && (
-            <div><center><h3>二维码（可选填）</h3></center>
-               <div style={{
-                 display: 'block',
-                 width: '100px',
-                 margin: '0 auto'
-               }}> <Service_QR_code
-                 service_QR_code_path={this.state.service_QR_code_path}
-                 get_service_QR_code_path={this.get_service_QR_code_path.bind(this)}
-               ></Service_QR_code></div><br />
+              <div><center><h3>业务办理二维码（可选填）</h3></center>
+                <div style={{
+                  display: 'block',
+                  width: '100px',
+                  margin: '0 auto'
+                }}> <Service_QR_code
+                  service_QR_code={this.state.service_QR_code}
+                  get_service_QR_code={this.get_service_QR_code.bind(this)}
+                ></Service_QR_code></div><br />
 
-              <Page4 form={form}
-              network_PC={this.state.network_PC}
-              network_mobile={this.state.network_mobile}
-              self_help={this.state.self_help}
-              get_self_help={this.get_self_help.bind(this)}
-              get_network_PC={this.get_network_PC.bind(this)}
-              get_network_mobile={this.get_network_mobile.bind(this)}
-              
-            ></Page4>
-            </div>
+                <Address form={form} arr={this.state.addresses}
+                  setArr={this.handle_addresses.bind(this)}></Address>
+              </div>
             )}
 
             {/*第5页*/}
@@ -631,9 +718,7 @@ class Form1 extends Component {
                 <RecordCheck post={this.state}>
                 </RecordCheck>
               </div>
-
             )}
-
             <br />
           </div>
 

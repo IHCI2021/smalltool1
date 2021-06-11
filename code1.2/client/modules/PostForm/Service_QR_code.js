@@ -16,7 +16,7 @@ export default class Service_QR_code extends React.Component {
     super(props);
     this.state = {
       loading: false,
-      imageUrl:this.props.service_QR_code
+      imageUrl:this.props.service_QR_code_path
     };
   }
 
@@ -40,26 +40,13 @@ export default class Service_QR_code extends React.Component {
           imageUrl: reader.result,
           loading: false,
         })
-        this.props.get_service_QR_code(this.state.imageUrl)
+        this.props.get_service_QR_code_path(this.state.imageUrl)
     }
   }
 
 
   handleChange = info => { 
-    // if (info.file.status === 'uploading') {
-    //   this.setState({ loading: true });
-    //   return;
-      
-    // }
-    // if (info.file.status === 'done') {
-    //   // Get this url from response in real world.
-    //   getBase64(info.file.originFileObj, imageUrl =>
-    //     this.setState({
-    //       imageUrl,
-    //       loading: false,
-    //     }),
-    //   );
-    // }
+
   };
 
   render() {
@@ -79,7 +66,7 @@ export default class Service_QR_code extends React.Component {
         beforeUpload={this.beforeUpload}
         onChange={this.handleChange}
       >
-        {imageUrl ? <img src={imageUrl} alt="service_QR_code" style={{ width: '100%' }} /> : uploadButton}
+        {imageUrl ? <img src={imageUrl} alt="service_QR_code_path" style={{ width: '100%' }} /> : uploadButton}
       </Upload>
     );
   }

@@ -73,18 +73,8 @@ class Page0 extends Component{
       return list;
   }
 
-  //设置cookie记录
-  // setCookie(name, value, exdays){
-  //   value = '--' + value;
-  //   var d = new Date();
-  //   d.setTime(d.getTime() + (exdays*24*60*60*1000));
-  //   var expires = "expires="+d.toGMTString();
-  //   document.cookie = name + "=" + value + ";" + expires + ";path=/";
-  // }
-
   //将输入框的值传回父组件state
   input_item_name(e){
-    //console.log(e);
     this.props.get_item_name(e);
   }
   input_item_code(e){
@@ -125,10 +115,7 @@ class Page0 extends Component{
                   ],
                 })
                 
-              // (<Input.TextArea
-              
-              // onChange={this.input_item_name.bind(this)}
-              //   maxLength="50" type="string"allowClear="true"/>)
+
               (<AutoComplete 
                 dataSource={this.state.item_name}
                 onChange={this.input_item_name.bind(this)}
@@ -156,10 +143,7 @@ class Page0 extends Component{
                     ]
                   })
                 
-                // (<Input
-                //  onChange={this.input_item_code.bind(this)}
-                //  type="string" maxLength="31"allowClear="true"
-                //  />)        
+     
                 (<AutoComplete 
                   dataSource={this.state.item_code}
                   onChange={this.input_item_code.bind(this)}

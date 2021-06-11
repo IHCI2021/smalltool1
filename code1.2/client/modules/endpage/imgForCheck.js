@@ -76,12 +76,8 @@ class RecordCheck extends React.Component {
   }
 
     render(){
-      console.log(this.props.post.service_QR_code)
       let cnarray = this.props.post.conditions;
     let maarray = this.props.post.materials;
-    let phonearray = this.props.post.phone_numbers;
-    let phone_address_array = this.props.post.phone_numbers_address; //新加电话地址
-    let addarray = this.props.post.addresses;
     const qrcode1 =
       "data:image/jpeg;base64," + this.props.post.consult_QR_code;
     const qrcode2 =
@@ -440,9 +436,7 @@ class RecordCheck extends React.Component {
                   }}
                 >
                   {" "}
-                  法定办结时限：{this.props.post.legal_limit}
-                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;承诺办结时限：
-                  {this.props.post.legal_limit}
+                  审核时限：{this.props.post.legal_limit}
                 </div>
               </div>
             </div>
@@ -468,7 +462,7 @@ class RecordCheck extends React.Component {
               }}
             >
               <div style={img2Style}>
-                <div style={textStyle}>业务咨询</div>
+                <div style={textStyle}>咨询</div>
               </div>
             </div>
             <div
@@ -483,78 +477,58 @@ class RecordCheck extends React.Component {
             >
               <div
                 style={{
-                  fontWeight: "900",
-                  color: "#038DCB",
-                  fontSize: "20px",
-                  lineHeight: "40px",
+                  fontSize: "18px",
+                  lineHeight: "50px",
                   border: "#038DCB solid 2px",
                   borderLeftWidth: "8px",
                   width: "370px",
                   textIndent: "2rem",
                 }}
               >
-                网络咨询平台
-              </div>
-              <div
-                style={{
-                  fontWeight: "900",
-                  color: "#038DCB",
-                  fontSize: "20px",
-                  lineHeight: "40px",
-                  border: "#038DCB solid 2px",
-                  borderLeftWidth: "8px",
-                  width: "660px",
-                  textIndent: "2rem",
-                }}
-              >
-                {" "}
                 咨询电话
               </div>
-
               <div
                 style={{
-                  border: " #038DCB solid 2px",
-                  borderLeftWidth: "8px",
-                  width: "370px",
-                  height: "300px",
-                }}
-              >
-                <img
-                  src={
-                    this.props.post.consult_QR_code
-                  }
-                  style={{
-                    maxWidth: "100%",
-                    maxHeight: "100%",
-                    display: "block",
-                    margin: "auto",
-                  }}
-                />
-              </div>
-
-              <div
-                style={{
+                  lineHeight: "50px",
                   fontSize: "18px",
 
                   border: "#038DCB solid 2px",
                   borderLeftWidth: "8px",
                   width: "660px",
-                  height: "300px",
+                  textIndent: "2rem",
                 }}
               >
-                {phone_address_array &&
-                  phone_address_array.map((item, index) => (
-                    <div
-                      style={{
-                        fontSize: "20px",
-                        textIndent: "2rem",
-                        display: "inline-block",
-                      }}
-                    >
-                      {index + 1 + ". 地址:" + item.names + ' 电话:'+phonearray[index].area+'-'+phonearray[index].pNumber}
-                    </div>
-                  ))}
+                {this.props.post.phone_numbers}
               </div>
+              
+              <div
+                style={{
+                  fontSize: "18px",
+                  lineHeight: "50px",
+                  border: "#038DCB solid 2px",
+                  borderLeftWidth: "8px",
+                  width: "370px",
+                  textIndent: "2rem",
+                }}
+              >
+                咨询平台
+              </div>
+              <div
+                style={{
+                  lineHeight: "50px",
+                  fontSize: "18px",
+
+                  border: "#038DCB solid 2px",
+                  borderLeftWidth: "8px",
+                  width: "660px",
+                  textIndent: "2rem",
+                }}
+              >
+                {this.props.post.consult_platform}
+              </div>
+              
+
+              
             </div>
           </div>
           <div
@@ -592,45 +566,29 @@ class RecordCheck extends React.Component {
                 flexWrap: "wrap",
               }}
             >
-              <div
+                <div
                 style={{
-                  fontWeight: "900",
-                  color: "#038DCB",
-                  fontSize: "20px",
-                  lineHeight: "40px",
-                  border: "#AAAAAA solid 2px",
+                  fontSize: "18px",
+                  lineHeight: "50px",
+                  border: "#038DCB solid 2px",
                   borderLeftWidth: "8px",
                   width: "370px",
                   textIndent: "2rem",
                 }}
               >
-                业务办理二维码
+                二维码
               </div>
               <div
                 style={{
-                  fontWeight: "900",
-                  color: "#038DCB",
-                  fontSize: "20px",
-                  lineHeight: "40px",
-                  border: "#AAAAAA solid 2px",
+                  border: "#038DCB solid 2px",
                   borderLeftWidth: "8px",
                   width: "660px",
-                  textIndent: "2rem",
-                }}
-              >
-                办事大厅地址
-              </div>
-              <div
-                style={{
-                  border: "#AAAAAA solid 2px",
-                  borderLeftWidth: "8px",
-                  width: "370px",
                   height: "300px",
                 }}
               >
                 <img
                   src={
-                    this.props.post.service_QR_code
+                    this.props.post.service_QR_code_path
                   }
                   style={{
                     maxWidth: "100%",
@@ -640,30 +598,79 @@ class RecordCheck extends React.Component {
                   }}
                 />
               </div>
-
               <div
                 style={{
-                  border: "#AAAAAA solid 2px",
+                  fontSize: "18px",
+                  border: "#038DCB solid 2px",
                   borderLeftWidth: "8px",
-                  width: "660px",
-                  height: "300px",
-                  fontSize: "16px",
-                  lineHeight: "32px",
+                  width: "370px",
                   textIndent: "2rem",
                 }}
               >
-                {addarray &&
-                  addarray.map((item, index) => (
-                    <li
-                      style={{
-                        fontSize: "20px",
-                        listStyle: "none",
-                      }}
-                    >
-                      {index + 1 + "." + item.names}
-                    </li>
-                  ))}
+                网办PC端
               </div>
+              <div
+                style={{
+                  lineHeight: "50px",
+                  fontSize: "18px",
+
+                  border: "#038DCB solid 2px",
+                  borderLeftWidth: "8px",
+                  width: "660px",
+                  textIndent: "2rem",
+                }}
+              >
+                {this.props.post.network_PC}
+              </div>
+              <div
+                style={{
+                  fontSize: "18px",
+                  border: "#038DCB solid 2px",
+                  borderLeftWidth: "8px",
+                  width: "370px",
+                  textIndent: "2rem",
+                }}
+              >
+                网办移动端
+              </div>
+              <div
+                style={{
+                  lineHeight: "50px",
+                  fontSize: "18px",
+
+                  border: "#038DCB solid 2px",
+                  borderLeftWidth: "8px",
+                  width: "660px",
+                  textIndent: "2rem",
+                }}
+              >
+                {this.props.post.network_mobile}
+              </div>
+              <div
+                style={{
+                  fontSize: "18px",
+                  border: "#038DCB solid 2px",
+                  borderLeftWidth: "8px",
+                  width: "370px",
+                  textIndent: "2rem",
+                }}
+              >
+                自助终端
+              </div>
+              <div
+                style={{
+                  lineHeight: "50px",
+                  fontSize: "18px",
+
+                  border: "#038DCB solid 2px",
+                  borderLeftWidth: "8px",
+                  width: "660px",
+                  textIndent: "2rem",
+                }}
+              >
+                {this.props.post.self_help}
+              </div>
+              
             </div>
           </div>
 
